@@ -2,4 +2,33 @@
 <resources>
 
     <style name="Theme.CS446fit4me" parent="android:Theme.Material.Light.NoActionBar" />
+       <!-- Base application theme (your main app theme) -->
+    <style name="Theme.YourApp" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- Customize your main app theme here if needed -->
+    </style>
+
+       <!-- I'm thinking for splash screen that it's the blueberry bobbing up and down -->
+
+       <!-- Splash Screen Theme -->
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <!-- Required: Set the theme of the Activity that follows your splash screen. -->
+        <!-- This should be your main app theme (the one your Compose UI will use). -->
+        <item name="postSplashScreenTheme">@style/Theme.YourApp</item>
+
+        <!-- Required: Set your icon or animated icon. -->
+        <!-- Use windowSplashScreenAnimatedIcon for static drawables or animated drawables. -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <!-- Or for adaptive icons (Android 8.0+), you can use just the icon: -->
+        <!-- <item name="windowSplashScreenIconBackgroundColor">@android:color/white</item> -->
+        <!-- <item name="windowSplashScreenBrandingImage">@drawable/your_brand_logo</item> -->
+
+
+        <!-- Optional: Set a background color for the splash screen window. -->
+        <item name="windowSplashScreenBackground">@android:color/white</item>
+        <!-- <item name="windowSplashScreenBackground">@color/your_splash_background_color</item> -->
+
+
+        <!-- Optional: For an animated icon, set its duration. -->
+        <!-- <item name="windowSplashScreenAnimationDuration">1000</item> -->
+    </style>
 </resources>
