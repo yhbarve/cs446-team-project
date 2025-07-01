@@ -42,7 +42,12 @@ fun MainScreen() {
                 TopBar(
                     title = currentScreenTitle,
                     canNavigateBack = canNavigateBack,
-                    onNavigateUp = { navController.navigateUp() }
+                    onNavigateUp = { navController.navigateUp() },
+                    onSettingsClick = if (currentRoute == BottomNavItem.Home.route) {
+                        { navController.navigate("settings") }
+                    } else {
+                        null
+                    }
                 )
             }
         },
@@ -60,6 +65,10 @@ fun MainScreen() {
             composable(BottomNavItem.FindMatch.route) { FindMatchScreen(navController) }
             composable(BottomNavItem.Workout.route) { WorkoutScreen(navController) }
             composable(BottomNavItem.Profile.route) { ProfileScreen(navController) }
+
+            composable("settings") {
+                SettingsMainScreen(navController)
+            }
         }
     }
 }
