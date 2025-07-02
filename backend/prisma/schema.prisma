@@ -25,18 +25,97 @@ datasource db {
 
 // sample schemas - feel free to edit
 
+enum TimePreference {
+  MORNING
+  AFTERNOON
+  EVENING
+  NIGHT
+  NONE // fallback/default option
+}
+
+enum ExperienceLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  ATHLETE
+  COACH
+}
+
+enum GymFrequency {
+  NEVER
+  RARELY
+  OCCASIONALLY    // 1–2 times/week
+  REGULARLY       // 3–4 times/week
+  FREQUENTLY      // 5–6 times/week
+  DAILY           // 7 days/week
+}
+
 model User {
+  id             String         @id @default(uuid())
+  email          String         @unique
+  name           String
+  passwordHash   String
+  heightCm       Float // Body measurements
+  weightKg       Float
+  age            Int
+  location       String // e.g., city name
+  timePreference TimePreference @default(NONE)
+  createdAt      DateTime       @default(now())
+	experienceLevel ExperienceLevel @default(BEGINNER)
+  gymFrequency    GymFrequency    @default(NEVER)
+
+  exercises Exercise[] // Relationship: user has many exercises
+  workouts  Workout[] // ?? user has many workouts ??
+  prs       PR[] // ?? user has many PRs ?? 
+}
+
+model Workout {
   id        String   @id @default(uuid())
-  email     String   @unique
-  name      String?
-  exercises Exercise[]
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+	workoutDate DateTime       @default(now())
+  notes       String?        // Optional: "Felt good", etc.
+  entries     WorkoutEntry[]
+	
   createdAt DateTime @default(now())
+}
+
+model WorkoutEntry {
+  id         String    @id @default(uuid())
+  workout    Workout   @relation(fields: [workoutId], references: [id])
+  workoutId  String
+  exercise   Exercise  @relation(fields: [exerciseId], references: [id])
+  exerciseId String
+  reps       Int
+  sets       Int?
+  weight     Float?    // Optional: weight lifted
+  duration   Int?      // Optional: in seconds
+  notes      String?
+
+  createdAt  DateTime  @default(now())
+}
+
+
+model PR {
+  id         String   @id @default(uuid())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+  exercise   Exercise @relation(fields: [exerciseId], references: [id])
+  exerciseId String
+  value      Int
+  createdAt  DateTime @default(now())
 }
 
 model Exercise {
   id        String   @id @default(uuid())
   name      String
+	gifUrl    String
   user      User     @relation(fields: [userId], references: [id])
   userId    String
   createdAt DateTime @default(now())
+
+  prs PR[]
+	entries   WorkoutEntry[]
+
+	// We have to store those APIs yet in DB to render.
 }
