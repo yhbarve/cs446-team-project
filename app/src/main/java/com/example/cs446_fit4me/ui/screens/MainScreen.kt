@@ -13,6 +13,7 @@ import com.example.cs446_fit4me.navigation.BottomNavItem
 import com.example.cs446_fit4me.navigation.getTitleByRoute
 import com.example.cs446_fit4me.ui.components.BottomNavigationBar
 import com.example.cs446_fit4me.ui.components.TopBar
+import com.example.cs446_fit4me.ui.screens.settings_subscreens.SettingsNavGraph
 
 // Main screen that contains the bottom navigation bar and the navigation host
 @Composable
@@ -25,6 +26,7 @@ fun MainScreen() {
         BottomNavItem.Workout,
         BottomNavItem.Profile
     )
+    //SettingsNavGraph(navController);
 
     // Get current route to determine title and back navigation state
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -42,7 +44,12 @@ fun MainScreen() {
                 TopBar(
                     title = currentScreenTitle,
                     canNavigateBack = canNavigateBack,
-                    onNavigateUp = { navController.navigateUp() }
+                    onNavigateUp = { navController.navigateUp() },
+                    onSettingsClick = if (currentRoute == BottomNavItem.Home.route) {
+                        { navController.navigate("settings") }
+                    } else {
+                        null
+                    }
                 )
             }
         },
@@ -60,6 +67,10 @@ fun MainScreen() {
             composable(BottomNavItem.FindMatch.route) { FindMatchScreen(navController) }
             composable(BottomNavItem.Workout.route) { WorkoutScreen(navController) }
             composable(BottomNavItem.Profile.route) { ProfileScreen(navController) }
+
+            composable("settings") {
+                SettingsMainScreen(navController)
+            }
         }
     }
 }
