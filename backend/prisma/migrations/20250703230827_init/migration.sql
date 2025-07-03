@@ -107,18 +107,18 @@ CREATE TABLE "ExerciseSet" (
 );
 
 -- CreateTable
-CREATE TABLE "_ExerciseTemplateToWorkoutTemplate" (
+CREATE TABLE "_WorkoutTemplateExercises" (
     "A" TEXT NOT NULL,
     "B" TEXT NOT NULL,
 
-    CONSTRAINT "_ExerciseTemplateToWorkoutTemplate_AB_pkey" PRIMARY KEY ("A","B")
+    CONSTRAINT "_WorkoutTemplateExercises_AB_pkey" PRIMARY KEY ("A","B")
 );
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
-CREATE INDEX "_ExerciseTemplateToWorkoutTemplate_B_index" ON "_ExerciseTemplateToWorkoutTemplate"("B");
+CREATE INDEX "_WorkoutTemplateExercises_B_index" ON "_WorkoutTemplateExercises"("B");
 
 -- AddForeignKey
 ALTER TABLE "WorkoutTemplate" ADD CONSTRAINT "WorkoutTemplate_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -151,7 +151,7 @@ ALTER TABLE "ExerciseSession" ADD CONSTRAINT "ExerciseSession_workoutSessionId_f
 ALTER TABLE "ExerciseSet" ADD CONSTRAINT "ExerciseSet_exerciseSessionId_fkey" FOREIGN KEY ("exerciseSessionId") REFERENCES "ExerciseSession"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "_ExerciseTemplateToWorkoutTemplate" ADD CONSTRAINT "_ExerciseTemplateToWorkoutTemplate_A_fkey" FOREIGN KEY ("A") REFERENCES "ExerciseTemplate"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "_WorkoutTemplateExercises" ADD CONSTRAINT "_WorkoutTemplateExercises_A_fkey" FOREIGN KEY ("A") REFERENCES "ExerciseTemplate"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "_ExerciseTemplateToWorkoutTemplate" ADD CONSTRAINT "_ExerciseTemplateToWorkoutTemplate_B_fkey" FOREIGN KEY ("B") REFERENCES "WorkoutTemplate"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "_WorkoutTemplateExercises" ADD CONSTRAINT "_WorkoutTemplateExercises_B_fkey" FOREIGN KEY ("B") REFERENCES "WorkoutTemplate"("id") ON DELETE CASCADE ON UPDATE CASCADE;

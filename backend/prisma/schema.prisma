@@ -105,7 +105,7 @@ model WorkoutTemplate {
   isGeneral Boolean  @default(false) // true = general, false = custom
   createdAt DateTime @default(now())
 
-  exercises      ExerciseTemplate[]
+  exercises      ExerciseTemplate[] @relation("WorkoutTemplateExercises")
   User           User?              @relation(fields: [userId], references: [id])
   userId         String?
   WorkoutSession WorkoutSession[]
@@ -153,7 +153,7 @@ model ExerciseTemplate {
   createdAt        DateTime          @default(now())
   User             User?             @relation(fields: [userId], references: [id])
   userId           String?
-  WorkoutTemplates WorkoutTemplate[]
+  WorkoutTemplates WorkoutTemplate[] @relation("WorkoutTemplateExercises")
   PR               PR[]
   ExerciseSession  ExerciseSession[]
 }
