@@ -133,8 +133,8 @@ model PR {
 
   template   ExerciseTemplate @relation(fields: [templateId], references: [id])
   templateId String
-  User      User     @relation(fields: [userId], references: [id])
-  userId    String
+  User       User             @relation(fields: [userId], references: [id])
+  userId     String
 
   weight    Float? // Optional: for weight-based PRs
   duration  Int? // Optional: for time-based PRs (in seconds)
@@ -142,28 +142,25 @@ model PR {
   createdAt DateTime @default(now())
 }
 
-
-
 model ExerciseTemplate {
   id          String      @id @default(uuid())
   name        String
   muscleGroup MuscleGroup
   bodyPart    BodyPart
   isGeneral   Boolean     @default(false)
-  gifUrl      String
+  gifUrl      String?
 
-  createdAt         DateTime          @default(now())
-  User              User?             @relation(fields: [userId], references: [id])
-  userId            String?
-  WorkoutTemplate   WorkoutTemplate?  @relation(fields: [workoutTemplateId], references: [id])
-  workoutTemplateId String?
-  PR                PR[]
-  ExerciseSession   ExerciseSession[]
+  createdAt        DateTime          @default(now())
+  User             User?             @relation(fields: [userId], references: [id])
+  userId           String?
+  WorkoutTemplates WorkoutTemplate[]
+  PR               PR[]
+  ExerciseSession  ExerciseSession[]
 }
 
 model ExerciseSession {
-  id               String           @id @default(uuid())
-  exerciseTemplate ExerciseTemplate @relation(fields: [exerciseTemplateID], references: [id])
+  id                 String           @id @default(uuid())
+  exerciseTemplate   ExerciseTemplate @relation(fields: [exerciseTemplateID], references: [id])
   exerciseTemplateID String
 
   user   User   @relation(fields: [userId], references: [id])
@@ -186,7 +183,7 @@ model ExerciseSet {
   weight   Float?
   duration Int? // In seconds, optional
 
-  createdAt         DateTime         @default(now())
+  createdAt         DateTime        @default(now())
   ExerciseSession   ExerciseSession @relation(fields: [exerciseSessionId], references: [id])
   exerciseSessionId String
 }
