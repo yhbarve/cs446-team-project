@@ -1,0 +1,24 @@
+export enum TimePreference {
+	MORNING = "MORNING",
+	AFTERNOON = "AFTERNOON",
+	EVENING = "EVENING",
+	NIGHT = "NIGHT",
+	NONE = "NONE",
+}
+
+export enum ExperienceLevel {
+	BEGINNER = "BEGINNER",
+	INTERMEDIATE = "INTERMEDIATE",
+	ADVANCED = "ADVANCED",
+	ATHLETE = "ATHLETE",
+	COACH = "COACH",
+}
+
+export enum GymFrequency {
+	NEVER = "NEVER",
+	RARELY = "RARELY",
+	OCCASIONALLY = "OCCASIONALLY",
+	REGULARLY = "REGULARLY",
+	FREQUENTLY = "FREQUENTLY",
+	DAILY = "DAILY",
+}

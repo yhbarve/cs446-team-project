@@ -1,10 +1,11 @@
 import { Router, Request, Response } from "express";
 import prisma from "../lib/prisma";
+import { TimePreference, ExperienceLevel, GymFrequency } from "../lib/types";
 
 const userRouter = Router();
 
 // Create new user
-userRouter.post("/", async (req: Request, res: Response) => {
+userRouter.post("/", async (req: Request, res: Response): Promise<any> => {
 	const {
 		email,
 		name,
@@ -18,6 +19,31 @@ userRouter.post("/", async (req: Request, res: Response) => {
 		gymFrequency,
 	} = req.body;
 
+	// Validate enums
+	if (!Object.values(TimePreference).includes(timePreference)) {
+		return res.status(400).json({
+			error: `Invalid timePreference. Must be one of: ${Object.values(
+				TimePreference
+			).join(", ")}.`,
+		});
+	}
+
+	if (!Object.values(ExperienceLevel).includes(experienceLevel)) {
+		return res.status(400).json({
+			error: `Invalid experienceLevel. Must be one of: ${Object.values(
+				ExperienceLevel
+			).join(", ")}.`,
+		});
+	}
+
+	if (!Object.values(GymFrequency).includes(gymFrequency)) {
+		return res.status(400).json({
+			error: `Invalid gymFrequency. Must be one of: ${Object.values(
+				GymFrequency
+			).join(", ")}.`,
+		});
+	}
+
 	try {
 		const newUser = await prisma.user.create({
 			data: {
@@ -28,9 +54,9 @@ userRouter.post("/", async (req: Request, res: Response) => {
 				weightKg,
 				age,
 				location,
-				timePreference,
-				experienceLevel,
-				gymFrequency,
+				timePreference: timePreference as TimePreference,
+				experienceLevel: experienceLevel as ExperienceLevel,
+				gymFrequency: gymFrequency as GymFrequency,
 			},
 		});
 
