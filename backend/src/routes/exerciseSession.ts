@@ -1,14 +1,84 @@
 import { Router, Request, Response } from "express";
-import prisma from "../lib/prisma"; // import prisma client to communicate with the db
+import prisma from "../lib/prisma";
 
-const matchRouter = Router();
+const exerciseSessionRouter = Router();
 
-// add endpoints
-matchRouter.get('/', (req: Request, res: Response) => {
-    // const matches = await prisma.match.findMany();
-    res.status(200).json({
-        msg: "Hi from profile matching router"
-    });
+// ✅ Create ExerciseSession
+exerciseSessionRouter.post(
+	"/",
+	async (req: Request, res: Response): Promise<any> => {
+		const {
+			exerciseTemplateID,
+			userId,
+			date,
+			notes,
+			workoutSessionId, // optional
+		} = req.body;
+
+		if (!exerciseTemplateID || !userId || !date) {
+			return res.status(400).json({ error: "Missing required fields." });
+		}
+
+		try {
+			const session = await prisma.exerciseSession.create({
+				data: {
+					exerciseTemplateID,
+					userId,
+					date: new Date(date),
+					notes,
+					workoutSessionId,
+				},
+			});
+
+			res.status(201).json(session);
+		} catch (err: any) {
+			res.status(400).json({ error: err.message });
+		}
+	}
+);
+
+// ✅ Get all ExerciseSessions
+exerciseSessionRouter.get("/", async (_req: Request, res: Response) => {
+	try {
+		const sessions = await prisma.exerciseSession.findMany({
+			include: {
+				exerciseTemplate: true,
+				user: true,
+				sets: true,
+			},
+		});
+
+		res.status(200).json(sessions);
+	} catch (err: any) {
+		res.status(500).json({ error: err.message });
+	}
 });
 
-export default matchRouter;
+// ✅ Get by ID
+exerciseSessionRouter.get(
+	"/:id",
+	async (req: Request, res: Response): Promise<any> => {
+		const id = req.params.id;
+
+		try {
+			const session = await prisma.exerciseSession.findUnique({
+				where: { id },
+				include: {
+					exerciseTemplate: true,
+					user: true,
+					sets: true,
+				},
+			});
+
+			if (!session) {
+				return res.status(404).json({ error: "ExerciseSession not found." });
+			}
+
+			res.status(200).json(session);
+		} catch (err: any) {
+			res.status(500).json({ error: err.message });
+		}
+	}
+);
+
+export default exerciseSessionRouter;
