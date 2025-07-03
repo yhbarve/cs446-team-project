@@ -1,9 +1,9 @@
 import { Router } from "express";
 import userRouter from "./user";
-import exerciseRouter from "./exercise";
-import workoutRouter from "./workout";
-import precordRouter from "./precord";
-import matchRouter from "./match";
+import exerciseRouter from "./exerciseTemplate";
+import workoutRouter from "./workoutTemplate";
+import precordRouter from "./pr";
+import matchRouter from "./exerciseSession";
 
 const router = Router();
 
