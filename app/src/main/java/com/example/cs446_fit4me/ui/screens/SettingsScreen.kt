@@ -3,21 +3,26 @@ package com.example.cs446_fit4me.ui.screens
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
-import androidx.compose.material.icons.filled.ArrowForwardIos
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
@@ -28,12 +33,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.cs446_fit4me.ui.components.TopBar
 import com.example.cs446_fit4me.ui.theme.CS446fit4meTheme
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import com.example.cs446_fit4me.ui.screens.settings_subscreens.*
 
 
 // Sealed class for navigation routes (as defined in step 1)
@@ -69,6 +69,7 @@ fun SettingsMainScreen(navController: NavController) {
                 .fillMaxSize()
                 .padding(paddingValues)
                 .padding(16.dp)
+                .verticalScroll(rememberScrollState())
         ) {
             // Search Bar
             OutlinedTextField(
@@ -91,58 +92,58 @@ fun SettingsMainScreen(navController: NavController) {
             // ACCOUNT SETTINGS
             SettingsSectionHeader("ACCOUNT SETTINGS")
             SettingsItem("Edit Account Info") {
-                navController.navigate(SettingsScreen.EditAccountInfo.route)
+                //navController.navigate(SettingsScreen.EditAccountInfo.route)
             }
             SettingsItem("Change Password") {
-                navController.navigate(SettingsScreen.ChangePassword.route) // Add this route if needed
+                //navController.navigate(SettingsScreen.ChangePassword.route) // Add this route if needed
             }
 
             // NOTIFICATIONS
             SettingsSectionHeader("NOTIFICATIONS")
             SettingsItem("Notification Settings") {
-                navController.navigate(SettingsScreen.NotificationSettings.route)
+                //navController.navigate(SettingsScreen.NotificationSettings.route)
             }
             SettingsItem("Remind Me") {
-                navController.navigate(SettingsScreen.RemindMe.route) // Add this route if needed
+                //navController.navigate(SettingsScreen.RemindMe.route) // Add this route if needed
             }
 
             // APPEARANCE
             SettingsSectionHeader("APPEARANCE")
             SettingsItem("Units") {
-                navController.navigate(SettingsScreen.Units.route)
+                //navController.navigate(SettingsScreen.Units.route)
             }
             SettingsItem("Accessibility") {
-                navController.navigate(SettingsScreen.Accessibility.route)
+                //navController.navigate(SettingsScreen.Accessibility.route)
             }
 
             // PRIVACY
             SettingsSectionHeader("PRIVACY")
             SettingsItem("Profile Visibility") {
-                navController.navigate(SettingsScreen.ProfileVisibility.route)
+                //navController.navigate(SettingsScreen.ProfileVisibility.route)
             }
             SettingsItem("Matching Preferences") {
-                navController.navigate(SettingsScreen.MatchingPreferences.route)
+                //navController.navigate(SettingsScreen.MatchingPreferences.route)
             }
             SettingsItem("Workout History") {
-                navController.navigate(SettingsScreen.WorkoutHistory.route)
+                //navController.navigate(SettingsScreen.WorkoutHistory.route)
             }
 
             // SUPPORT
             SettingsSectionHeader("SUPPORT")
             SettingsItem("Rate") {
-                navController.navigate(SettingsScreen.Rate.route)
+                //navController.navigate(SettingsScreen.Rate.route)
             }
             SettingsItem("Help Center") {
-                navController.navigate(SettingsScreen.HelpSupport.route)
+                //navController.navigate(SettingsScreen.HelpSupport.route)
             }
 
             // DANGER ZONE
             SettingsSectionHeader("DANGER ZONE")
             SettingsItem("Logout", textStyle = TextStyle(color = MaterialTheme.colorScheme.error)) {
-                navController.navigate(SettingsScreen.Logout.route)
+                //navController.navigate(SettingsScreen.Logout.route)
             }
             SettingsItem("Delete Account", textStyle = TextStyle(color = MaterialTheme.colorScheme.error)) {
-                navController.navigate(SettingsScreen.DeleteAccount.route)
+                //navController.navigate(SettingsScreen.DeleteAccount.route)
             }
         }
     }
@@ -184,73 +185,6 @@ fun SettingsItem(text: String, textStyle: TextStyle? = null, onClick: () -> Unit
         )
     }
 }
-
-@Composable
-fun EditAccountInfoScreen(navController: NavController) {
-    // Your UI for Account Settings
-    Text("Edit Account Info Screen")
-}
-
-@Composable
-fun ChangePasswordScreen(navController: NavController) {
-    Text("Change Password Screen")
-}
-
-@Composable
-fun NotificationSettingsScreen(navController: NavController) {
-    Text("Notification Settings Screen")
-}
-
-@Composable
-fun RemindMeScreen(navController: NavController) {
-    Text("Remind Me Screen")
-}
-
-@Composable
-fun UnitsScreen(navController: NavController) {
-    Text("Units Screen")
-}
-
-@Composable
-fun AccessibilityScreen(navController: NavController) {
-    Text("Accessibility Screen")
-}
-
-@Composable
-fun ProfileVisibilityScreen(navController: NavController) {
-    Text("Profile Visibility Screen")
-}
-
-@Composable
-fun MatchingPreferencesScreen(navController: NavController) {
-    Text("Matching Preferences Screen")
-}
-
-@Composable
-fun WorkoutHistoryScreen(navController: NavController) {
-    Text("Workout History Screen")
-}
-
-@Composable
-fun RateScreen(navController: NavController) {
-    Text("Rate Our App Screen")
-}
-
-@Composable
-fun HelpSupportScreen(navController: NavController) {
-    Text("Help & Support Screen")
-}
-
-@Composable
-fun LogoutScreen(navController: NavController) {
-    Text("Logout Screen - Are you sure?") // Placeholder, actual logout logic and UI would be more complex
-}
-
-@Composable
-fun DeleteAccountScreen(navController: NavController) {
-    Text("Delete Account Screen - Are you sure? This is irreversible.") // Placeholder
-}
-
 
 
 @Preview(showBackground = true)
