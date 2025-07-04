@@ -14,6 +14,7 @@ import com.example.cs446_fit4me.navigation.getTitleByRoute
 import com.example.cs446_fit4me.ui.components.BottomNavigationBar
 import com.example.cs446_fit4me.ui.components.TopBar
 import com.example.cs446_fit4me.ui.screens.settings_subscreens.SettingsNavGraph
+import com.example.cs446_fit4me.ui.screens.*
 
 // Main screen that contains the bottom navigation bar and the navigation host
 @Composable
@@ -65,7 +66,7 @@ fun MainScreen() {
             composable(BottomNavItem.Home.route) { HomeScreen(navController) }
             composable(BottomNavItem.Messages.route) { MessagesScreen(navController) }
             composable(BottomNavItem.FindMatch.route) { FindMatchScreen(navController) }
-            composable(BottomNavItem.Workout.route) { WorkoutScreen(navController) }
+            composable(BottomNavItem.Workout.route) { WorkoutScreen() }
             composable(BottomNavItem.Profile.route) { ProfileScreen(navController) }
 
             composable("settings") {
