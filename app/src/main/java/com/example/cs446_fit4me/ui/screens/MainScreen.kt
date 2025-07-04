@@ -71,6 +71,7 @@ fun MainScreen() {
             composable("settings") {
                 SettingsMainScreen(navController)
             }
+            composable("exercises") { ExercisesScreen(navController) }
         }
     }
 }
