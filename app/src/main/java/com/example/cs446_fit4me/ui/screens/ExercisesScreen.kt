@@ -30,7 +30,7 @@ fun ExercisesScreen(navController: NavController? = null) {
     var selectedTabIndex by remember { mutableStateOf(0) }
 
     val mockExercises = listOf(
-        Exercise("Push Up", MuscleGroup.CHEST, Equipment.NONE, BodyPart.CHEST, "", true, null),
+        Exercise("Push Up", MuscleGroup.CHEST, Equipment.NONE, BodyPart.CHEST, "", true, "https://wger.de/media/exercise-images/91/Crunches-1.png"),
         Exercise("Back Extension", MuscleGroup.BACK, Equipment.NONE, BodyPart.BACK, "", true, null),
         Exercise("Battle Ropes", MuscleGroup.CORE, Equipment.NONE, BodyPart.CORE, "", true, null),
         Exercise("Squat", MuscleGroup.LEGS, Equipment.NONE, BodyPart.LEGS, "", true, null),

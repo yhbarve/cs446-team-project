@@ -37,7 +37,7 @@ fun ExerciseListItem(exercise: Exercise, modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .size(48.dp)
                     .clip(MaterialTheme.shapes.small),  // Use small rounded corners or remove clip for sharp edges
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Fit
             )
         } else {
         Box(
