@@ -21,7 +21,7 @@ type WgerExerciseResponse = {
 async function fetchDataAndSave() {
 	try {
 		const response = await axios.get<WgerExerciseResponse>(
-			"https://wger.de/api/v2/exerciseinfo/?limit=50",
+			"https://wger.de/api/v2/exerciseinfo/?limit=500",
 			{
 				headers: {
 					Accept: "application/json",
@@ -31,7 +31,9 @@ async function fetchDataAndSave() {
 
 		const rawExercises = response.data.results;
 
-		const formattedExercises = rawExercises.map((item: any) => {
+		const formattedExercises = rawExercises
+    .filter((item: any) => item.images?.length > 0)
+    .map((item: any) => {
 			const englishTranslation = item.translations.find(
 				(t: any) => t.language === 2
 			);
@@ -53,7 +55,7 @@ async function fetchDataAndSave() {
 			};
 		});
 
-		const filePath = path.join(__dirname, "../output.json");
+		const filePath = path.join(__dirname, "/output.json");
 		fs.writeFileSync(filePath, JSON.stringify(formattedExercises, null, 2));
 
 		console.log("✅ Final cleaned data saved to output.json");
