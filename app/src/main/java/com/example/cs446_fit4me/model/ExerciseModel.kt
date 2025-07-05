@@ -28,14 +28,19 @@ data class ExerciseTemplate(
     val createdAt: String
 )
 
+fun String.toMuscleGroupOrNull() = try { MuscleGroup.valueOf(this.uppercase()) } catch (e: Exception) { null }
+fun String.toEquipmentOrNull() = try { Equipment.valueOf(this.uppercase()) } catch (e: Exception) { null }
+fun String.toBodyPartOrNull() = try { BodyPart.valueOf(this.uppercase()) } catch (e: Exception) { null }
+
+
 // if we want to convert, just keeping for now we can remove later
 fun ExerciseTemplate.toExercise(): Exercise {
     return Exercise(
         name = name,
-        muscleGroup = MuscleGroup.valueOf(muscleGroup),
-        equipment = Equipment.valueOf(equipment),
-        bodyPart = BodyPart.valueOf(bodyPart),
-        description = "", // backend doesn’t send this
+        muscleGroup = muscleGroup.toMuscleGroupOrNull() ?: MuscleGroup.CHEST, // fallback
+        equipment = equipment.toEquipmentOrNull() ?: Equipment.NONE,
+        bodyPart = bodyPart.toBodyPartOrNull() ?: BodyPart.CORE,
+        description = "",
         isGeneric = isGeneral,
         imageUrl = imageURL
     )

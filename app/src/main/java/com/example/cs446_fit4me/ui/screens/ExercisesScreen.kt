@@ -55,10 +55,12 @@ fun ExercisesScreen(navController: NavController? = null) {
 		LaunchedEffect(Unit) {
 				try {
 						val response = ApiClient.exerciseApiService.getGeneralExercises()
-
+                        println(response)
                         allExercises = response.map { exerciseTemplate ->
                             exerciseTemplate.toExercise()
+
                         }
+                        println(allExercises)
 						isLoading = false
 				} catch (e: Exception) {
 						errorMessage = "Failed to load exercises"
@@ -68,6 +70,7 @@ fun ExercisesScreen(navController: NavController? = null) {
 
 
     val mockExercises = allExercises.sortedBy { it.name }
+        println(mockExercises)
 		val myExercises = emptyList<Exercise>()
 
     // Pick base list depending on selected tab
