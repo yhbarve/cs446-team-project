@@ -17,7 +17,7 @@ app.use("/api", apiRouter);
 
 app.get("/", (req: Request, res: Response) => {
 	res.status(200).json({
-		msg: "App is up!",
+		msg: "Welcome to the CS446 Fit4Me Backend Server",
 	});
 });
 
