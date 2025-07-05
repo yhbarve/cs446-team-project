@@ -75,8 +75,6 @@ fun ExercisesScreen(navController: NavController? = null) {
 
 
     val mockExercises = allExercises.sortedBy { it.name }
-        println(mockExercises)
-		val myExercises = emptyList<Exercise>()
 
     // Pick base list depending on selected tab
     
