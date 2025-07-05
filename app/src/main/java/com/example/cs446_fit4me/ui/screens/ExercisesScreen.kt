@@ -25,7 +25,12 @@ import androidx.navigation.NavController
 import com.example.cs446_fit4me.model.Exercise
 import com.example.cs446_fit4me.model.BodyPart
 import com.example.cs446_fit4me.model.Equipment
+
+import com.example.cs446_fit4me.model.ExerciseTemplate
 import com.example.cs446_fit4me.model.MuscleGroup
+import com.example.cs446_fit4me.model.toExercise
+import com.example.cs446_fit4me.network.ApiClient
+import com.example.cs446_fit4me.network.ExerciseApiService
 import com.example.cs446_fit4me.ui.components.ExerciseListItem
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,7 +57,10 @@ fun ExercisesScreen(navController: NavController? = null) {
 		LaunchedEffect(Unit) {
 				try {
 						val response = ApiClient.exerciseApiService.getGeneralExercises()
-						allExercises = response
+
+                        allExercises = response.map { exerciseTemplate ->
+                            exerciseTemplate.toExercise()
+                        }
 						isLoading = false
 				} catch (e: Exception) {
 						errorMessage = "Failed to load exercises"
