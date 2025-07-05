@@ -25,7 +25,6 @@ import androidx.navigation.NavController
 import com.example.cs446_fit4me.model.Exercise
 import com.example.cs446_fit4me.model.BodyPart
 import com.example.cs446_fit4me.model.Equipment
-import androidx.compose.ui.platform.LocalContext
 
 import com.example.cs446_fit4me.model.ExerciseTemplate
 import com.example.cs446_fit4me.model.MuscleGroup
