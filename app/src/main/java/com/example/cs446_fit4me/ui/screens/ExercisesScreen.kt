@@ -36,6 +36,10 @@ fun ExercisesScreen(navController: NavController? = null) {
 
     var bodyPartDropdownExpanded by remember { mutableStateOf(false) }
     var selectedBodyParts by remember { mutableStateOf(setOf<BodyPart>()) }
+
+    var equipmentDropdownExpanded by remember { mutableStateOf(false) }
+    var selectedEquipments by remember { mutableStateOf(setOf<Equipment>()) }
+
     var filterButtonSize by remember { mutableStateOf(IntSize.Zero) }
 
     val mockExercises = listOf(
@@ -61,10 +65,11 @@ fun ExercisesScreen(navController: NavController? = null) {
     // Pick base list depending on selected tab
     val baseExercises = if (selectedTabIndex == 0) mockExercises else myExercises
 
-    // Filter by search text (case-insensitive substring match) and selected body parts
+    // Filter exercises by search, selected body parts, and selected equipment
     val filteredExercises = baseExercises.filter { exercise ->
         exercise.name.startsWith(searchText, ignoreCase = true) &&
-                (selectedBodyParts.isEmpty() || exercise.bodyPart in selectedBodyParts)
+                (selectedBodyParts.isEmpty() || exercise.bodyPart in selectedBodyParts) &&
+                (selectedEquipments.isEmpty() || exercise.equipment in selectedEquipments)
     }
 
     Box(
@@ -86,7 +91,7 @@ fun ExercisesScreen(navController: NavController? = null) {
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             OutlinedTextField(
                 value = searchText,
@@ -100,13 +105,16 @@ fun ExercisesScreen(navController: NavController? = null) {
                 shape = MaterialTheme.shapes.small
             )
 
+            Spacer(modifier = Modifier.height(4.dp))
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
-                    .padding(top = 16.dp, bottom = 24.dp),
+                    .padding(top = 8.dp, bottom = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                // Body Part Filter Button and Dropdown
                 Box(
                     modifier = Modifier
                         .weight(1f)
@@ -115,7 +123,7 @@ fun ExercisesScreen(navController: NavController? = null) {
                         }
                 ) {
                     FilterButton(
-                        text = if (selectedBodyParts.isEmpty()) "Filter Body Part" else "${selectedBodyParts.size} selected",
+                        text = if (selectedBodyParts.isEmpty()) "Body Part" else "${selectedBodyParts.size} selected",
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { bodyPartDropdownExpanded = true }
                     )
@@ -154,11 +162,53 @@ fun ExercisesScreen(navController: NavController? = null) {
                     }
                 }
 
-                FilterButton(
-                    text = "Any Category",
-                    modifier = Modifier.weight(1f),
-                    onClick = { /* TODO */ }
-                )
+                // Equipment Filter Button and Dropdown
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .onGloballyPositioned { coordinates: LayoutCoordinates ->
+                            // Optional: Track size separately if needed
+                        }
+                ) {
+                    FilterButton(
+                        text = if (selectedEquipments.isEmpty()) "Equipment" else "${selectedEquipments.size} selected",
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = { equipmentDropdownExpanded = true }
+                    )
+                    DropdownMenu(
+                        expanded = equipmentDropdownExpanded,
+                        onDismissRequest = { equipmentDropdownExpanded = false },
+                        modifier = Modifier
+                            .width(with(LocalDensity.current) { (filterButtonSize.width * 0.8f).toDp() })
+                            .heightIn(max = 300.dp)
+                            .background(
+                                color = MaterialTheme.colorScheme.surface,
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                    ) {
+                        Equipment.values().forEach { equipment ->
+                            val isSelected = selectedEquipments.contains(equipment)
+                            DropdownMenuItem(
+                                onClick = {
+                                    selectedEquipments = if (isSelected) {
+                                        selectedEquipments - equipment
+                                    } else {
+                                        selectedEquipments + equipment
+                                    }
+                                },
+                                text = {
+                                    Text(
+                                        equipment.name.replaceFirstChar { it.uppercase() },
+                                        color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else LocalContentColor.current
+                                    )
+                                },
+                                modifier = Modifier.background(
+                                    if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
+                                )
+                            )
+                        }
+                    }
+                }
             }
 
             TabRow(
