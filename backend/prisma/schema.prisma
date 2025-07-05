@@ -50,31 +50,42 @@ enum GymFrequency {
 }
 
 enum MuscleGroup {
-  CHEST
-  BACK
   SHOULDERS
-  ARMS
-  LEGS
-  CORE
-  FULL_BODY
+  BICEPS
+  HAMSTRINGS
+  CALVES
+  GLUTES
+  LATS
+  CHEST
+  QUADS
+  ABS
+  TRICEPS
+  OTHER
+}
+
+enum Equipment {
+  BARBELLS
+  BENCH
+  DUMBBELL
+  GYM_MAT
+  INCLINE_BENCH
+  KETTLEBELL
+  PULL_UP_BAR
+  SZ_BAR
+  SWISS_BALL
+  NONE
   OTHER
 }
 
 enum BodyPart {
-  BICEPS
-  TRICEPS
-  QUADRICEPS
-  HAMSTRINGS
-  CALVES
-  GLUTES
-  ABDOMINALS
-  LATS
-  TRAPEZIUS
-  FOREARMS
-  NECK
-  CHEST
-  SHOULDERS
+  ABS
+  ARMS
   BACK
+  CALVES
+  CARDIO
+  CHEST
+  LEGS
+  SHOULDERS
   OTHER
 }
 
@@ -147,8 +158,9 @@ model ExerciseTemplate {
   name        String
   muscleGroup MuscleGroup
   bodyPart    BodyPart
+  equipment   Equipment
   isGeneral   Boolean     @default(false)
-  gifUrl      String?
+  imageURL      String?
 
   createdAt        DateTime          @default(now())
   User             User?             @relation(fields: [userId], references: [id])

@@ -8,10 +8,13 @@ CREATE TYPE "ExperienceLevel" AS ENUM ('BEGINNER', 'INTERMEDIATE', 'ADVANCED', '
 CREATE TYPE "GymFrequency" AS ENUM ('NEVER', 'RARELY', 'OCCASIONALLY', 'REGULARLY', 'FREQUENTLY', 'DAILY');
 
 -- CreateEnum
-CREATE TYPE "MuscleGroup" AS ENUM ('CHEST', 'BACK', 'SHOULDERS', 'ARMS', 'LEGS', 'CORE', 'FULL_BODY', 'OTHER');
+CREATE TYPE "MuscleGroup" AS ENUM ('SHOULDERS', 'BICEPS', 'HAMSTRINGS', 'CALVES', 'GLUTES', 'LATS', 'CHEST', 'QUADS', 'ABS', 'TRICEPS', 'OTHER');
 
 -- CreateEnum
-CREATE TYPE "BodyPart" AS ENUM ('BICEPS', 'TRICEPS', 'QUADRICEPS', 'HAMSTRINGS', 'CALVES', 'GLUTES', 'ABDOMINALS', 'LATS', 'TRAPEZIUS', 'FOREARMS', 'NECK', 'CHEST', 'SHOULDERS', 'BACK', 'OTHER');
+CREATE TYPE "Equipment" AS ENUM ('BARBELLS', 'BENCH', 'DUMBBELL', 'GYM_MAT', 'INCLINE_BENCH', 'KETTLEBELL', 'PULL_UP_BAR', 'SZ_BAR', 'SWISS_BALL', 'NONE', 'OTHER');
+
+-- CreateEnum
+CREATE TYPE "BodyPart" AS ENUM ('ABS', 'ARMS', 'BACK', 'CALVES', 'CARDIO', 'CHEST', 'LEGS', 'SHOULDERS', 'OTHER');
 
 -- CreateTable
 CREATE TABLE "User" (
@@ -73,8 +76,9 @@ CREATE TABLE "ExerciseTemplate" (
     "name" TEXT NOT NULL,
     "muscleGroup" "MuscleGroup" NOT NULL,
     "bodyPart" "BodyPart" NOT NULL,
+    "equipment" "Equipment" NOT NULL,
     "isGeneral" BOOLEAN NOT NULL DEFAULT false,
-    "gifUrl" TEXT,
+    "imageURL" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "userId" TEXT,
 

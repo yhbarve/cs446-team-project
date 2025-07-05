@@ -57,7 +57,7 @@ exerciseTemplateRouter.get(
 exerciseTemplateRouter.post(
 	"/",
 	async (req: Request, res: Response): Promise<any> => {
-		const { name, muscleGroup, bodyPart, isGeneral, gifUrl, userId } = req.body;
+		const { name, muscleGroup, bodyPart, isGeneral, imageURL, userId, equipment } = req.body;
 
 		if (!name || !muscleGroup || !bodyPart || isGeneral === undefined) {
 			return res.status(400).json({ error: "Missing required fields." });
@@ -79,8 +79,9 @@ exerciseTemplateRouter.post(
 					muscleGroup,
 					bodyPart,
 					isGeneral,
-					gifUrl,
+					imageURL,
 					userId,
+					equipment,
 				},
 			});
 
@@ -93,7 +94,7 @@ exerciseTemplateRouter.post(
 
 // UPDATE a template
 exerciseTemplateRouter.put("/:id", async (req: Request, res: Response) => {
-	const { name, muscleGroup, bodyPart, gifUrl, isGeneral } = req.body;
+	const { name, muscleGroup, bodyPart, imageURL, isGeneral, equipment } = req.body;
 
 	try {
 		const updated = await prisma.exerciseTemplate.update({
@@ -102,8 +103,9 @@ exerciseTemplateRouter.put("/:id", async (req: Request, res: Response) => {
 				name,
 				muscleGroup,
 				bodyPart,
-				gifUrl,
+				imageURL,
 				isGeneral,
+				equipment
 			},
 		});
 
