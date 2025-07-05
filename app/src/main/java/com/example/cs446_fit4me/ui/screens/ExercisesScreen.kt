@@ -7,10 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,11 +18,15 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
-import com.example.cs446_fit4me.model.Exercise
-import com.example.cs446_fit4me.model.BodyPart
-import com.example.cs446_fit4me.model.Equipment
-import com.example.cs446_fit4me.model.MuscleGroup
+import com.example.cs446_fit4me.model.*
 import com.example.cs446_fit4me.ui.components.ExerciseListItem
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,6 +42,9 @@ fun ExercisesScreen(navController: NavController? = null) {
     var selectedEquipments by remember { mutableStateOf(setOf<Equipment>()) }
 
     var filterButtonSize by remember { mutableStateOf(IntSize.Zero) }
+
+    var showCreateModal by remember { mutableStateOf(false) }
+    var myExercises by remember { mutableStateOf(listOf<Exercise>()) }
 
     val mockExercises = listOf(
         Exercise("Push Up", MuscleGroup.CHEST, Equipment.NONE, BodyPart.CHEST, "", true, "https://wger.de/media/exercise-images/91/Crunches-1.png"),
@@ -60,12 +64,8 @@ fun ExercisesScreen(navController: NavController? = null) {
         Exercise("Leg Curl", MuscleGroup.LEGS, Equipment.MACHINE, BodyPart.LEGS, "", true, null)
     ).sortedBy { it.name }
 
-    val myExercises = emptyList<Exercise>()
-
-    // Pick base list depending on selected tab
     val baseExercises = if (selectedTabIndex == 0) mockExercises else myExercises
 
-    // Filter exercises by search, selected body parts, and selected equipment
     val filteredExercises = baseExercises.filter { exercise ->
         exercise.name.startsWith(searchText, ignoreCase = true) &&
                 (selectedBodyParts.isEmpty() || exercise.bodyPart in selectedBodyParts) &&
@@ -77,14 +77,17 @@ fun ExercisesScreen(navController: NavController? = null) {
             .fillMaxSize()
             .systemBarsPadding()
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
+        Column(modifier = Modifier.fillMaxSize()) {
             TopAppBar(
                 title = { Text("Exercises") },
                 navigationIcon = {
                     IconButton(onClick = { navController?.navigateUp() }) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    TextButton(onClick = { showCreateModal = true }) {
+                        Text("New", color = MaterialTheme.colorScheme.primary)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(),
@@ -164,11 +167,7 @@ fun ExercisesScreen(navController: NavController? = null) {
 
                 // Equipment Filter Button and Dropdown
                 Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .onGloballyPositioned { coordinates: LayoutCoordinates ->
-                            // Optional: Track size separately if needed
-                        }
+                    modifier = Modifier.weight(1f)
                 ) {
                     FilterButton(
                         text = if (selectedEquipments.isEmpty()) "Equipment" else "${selectedEquipments.size} selected",
@@ -235,15 +234,158 @@ fun ExercisesScreen(navController: NavController? = null) {
             )
         }
 
-        FloatingActionButton(
-            onClick = {
-                // TODO: Implement add exercise logic later
-            },
+        if (showCreateModal) {
+            CreateExerciseModal(
+                bodyParts = BodyPart.values().toList(),
+                equipmentList = Equipment.values().toList(),
+                onDismiss = { showCreateModal = false },
+                onSave = { newExercise ->
+                    myExercises = myExercises + newExercise
+                    selectedTabIndex = 1
+                    showCreateModal = false
+                }
+            )
+        }
+    }
+}
+
+@Composable
+fun CreateExerciseModal(
+    bodyParts: List<BodyPart>,
+    equipmentList: List<Equipment>,
+    onDismiss: () -> Unit,
+    onSave: (Exercise) -> Unit
+) {
+    var name by remember { mutableStateOf("") }
+    var selectedBodyPart by remember { mutableStateOf<BodyPart?>(null) }
+    var equipmentDropdownExpanded by remember { mutableStateOf(false) }
+    var selectedEquipment by remember { mutableStateOf<Equipment?>(null) }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Card(
             modifier = Modifier
-                .padding(16.dp)
-                .align(Alignment.BottomEnd)
+                .fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp)
         ) {
-            Icon(imageVector = Icons.Default.Add, contentDescription = "Add Exercise")
+            Column(modifier = Modifier.padding(16.dp)) {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Create Custom Exercise",
+                        style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    IconButton(onClick = onDismiss) {
+                        Icon(Icons.Filled.Close, contentDescription = "Close")
+                    }
+                }
+
+                Spacer(Modifier.height(16.dp))
+
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Exercise Name") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(Modifier.height(16.dp))
+
+                Text("Body Part", style = MaterialTheme.typography.titleMedium)
+                Spacer(Modifier.height(8.dp))
+
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                    modifier = Modifier.heightIn(max = 150.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(bodyParts) { bp ->
+                        val isSelected = bp == selectedBodyPart
+                        Surface(
+                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier
+                                .clickable { selectedBodyPart = bp }
+                        ) {
+                            Text(
+                                bp.name.replaceFirstChar { it.uppercase() },
+                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp),
+                                color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                }
+
+
+                Spacer(Modifier.height(16.dp))
+
+                Text("Equipment", style = MaterialTheme.typography.titleMedium)
+                Spacer(Modifier.height(8.dp))
+
+                Box {
+                    OutlinedTextField(
+                        value = selectedEquipment?.name?.replaceFirstChar { it.uppercase() } ?: "",
+                        onValueChange = { },
+                        label = { Text("Equipment") },
+                        readOnly = true,
+                        trailingIcon = {
+                            Icon(
+                                imageVector = if (equipmentDropdownExpanded) Icons.Filled.ArrowDropUp else Icons.Filled.ArrowDropDown,
+                                contentDescription = "Toggle Dropdown",
+                                Modifier.clickable { equipmentDropdownExpanded = !equipmentDropdownExpanded }
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    DropdownMenu(
+                        expanded = equipmentDropdownExpanded,
+                        onDismissRequest = { equipmentDropdownExpanded = false },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        equipmentList.forEach { eq ->
+                            DropdownMenuItem(
+                                onClick = {
+                                    selectedEquipment = eq
+                                    equipmentDropdownExpanded = false
+                                },
+                                text = {
+                                    Text(eq.name.replaceFirstChar { it.uppercase() })
+                                }
+                            )
+                        }
+                    }
+                }
+
+                Spacer(Modifier.height(24.dp))
+
+                Button(
+                    onClick = {
+                        if (selectedBodyPart != null && selectedEquipment != null && name.isNotBlank()) {
+                            onSave(
+                                Exercise(
+                                    name = name,
+                                    muscleGroup = MuscleGroup.CHEST,
+                                    equipment = selectedEquipment!!,
+                                    bodyPart = selectedBodyPart!!,
+                                    description = "",
+                                    isGeneric = false,
+                                    imageUrl = null
+                                )
+                            )
+                        }
+                    },
+                    enabled = selectedBodyPart != null && selectedEquipment != null && name.isNotBlank(),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Save")
+                }
+            }
         }
     }
 }
