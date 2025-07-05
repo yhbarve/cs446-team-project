@@ -25,6 +25,7 @@ import androidx.navigation.NavController
 import com.example.cs446_fit4me.model.Exercise
 import com.example.cs446_fit4me.model.BodyPart
 import com.example.cs446_fit4me.model.Equipment
+import androidx.compose.ui.platform.LocalContext
 
 import com.example.cs446_fit4me.model.ExerciseTemplate
 import com.example.cs446_fit4me.model.MuscleGroup
@@ -45,8 +46,6 @@ fun ExercisesScreen(navController: NavController? = null) {
     var equipmentDropdownExpanded by remember { mutableStateOf(false) }
     var selectedEquipments by remember { mutableStateOf(setOf<Equipment>()) }
 
-		val context = LocalContext.current
-		val coroutineScope = rememberCoroutineScope()
 
 		var allExercises by remember { mutableStateOf<List<Exercise>>(emptyList()) }
 		var isLoading by remember { mutableStateOf(true) }
