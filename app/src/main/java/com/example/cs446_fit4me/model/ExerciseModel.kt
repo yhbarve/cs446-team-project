@@ -14,3 +14,29 @@ data class Exercise(
 enum class MuscleGroup { CHEST, BACK, LEGS, ARMS, SHOULDERS, CORE }
 enum class Equipment { NONE, DUMBBELL, BARBELL, MACHINE, BAND }
 enum class BodyPart { CHEST, BACK, LEGS, ARMS, SHOULDERS, CORE }
+
+
+data class ExerciseTemplate(
+    val id: String,
+    val name: String,
+    val muscleGroup: String,
+    val bodyPart: String,
+    val equipment: String,
+    val isGeneral: Boolean,
+    val imageURL: String?,
+    val userId: String?,
+    val createdAt: String
+)
+
+// if we want to convert, just keeping for now we can remove later
+fun ExerciseTemplate.toExercise(): Exercise {
+    return Exercise(
+        name = name,
+        muscleGroup = MuscleGroup.valueOf(muscleGroup),
+        equipment = Equipment.valueOf(equipment),
+        bodyPart = BodyPart.valueOf(bodyPart),
+        description = "", // backend doesn’t send this
+        isGeneric = isGeneral,
+        imageUrl = imageURL
+    )
+}

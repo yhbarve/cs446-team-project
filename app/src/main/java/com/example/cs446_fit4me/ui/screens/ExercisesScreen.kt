@@ -40,27 +40,29 @@ fun ExercisesScreen(navController: NavController? = null) {
     var equipmentDropdownExpanded by remember { mutableStateOf(false) }
     var selectedEquipments by remember { mutableStateOf(setOf<Equipment>()) }
 
+		val context = LocalContext.current
+		val coroutineScope = rememberCoroutineScope()
+
+		var allExercises by remember { mutableStateOf<List<Exercise>>(emptyList()) }
+		var isLoading by remember { mutableStateOf(true) }
+		var errorMessage by remember { mutableStateOf<String?>(null) }
+
     var filterButtonSize by remember { mutableStateOf(IntSize.Zero) }
 
-    val mockExercises = listOf(
-        Exercise("Push Up", MuscleGroup.CHEST, Equipment.NONE, BodyPart.CHEST, "", true, "https://wger.de/media/exercise-images/91/Crunches-1.png"),
-        Exercise("Back Extension", MuscleGroup.BACK, Equipment.NONE, BodyPart.BACK, "", true, null),
-        Exercise("Battle Ropes", MuscleGroup.CORE, Equipment.NONE, BodyPart.CORE, "", true, null),
-        Exercise("Squat", MuscleGroup.LEGS, Equipment.NONE, BodyPart.LEGS, "", true, null),
-        Exercise("Arnold Press", MuscleGroup.SHOULDERS, Equipment.DUMBBELL, BodyPart.SHOULDERS, "", true, null),
-        Exercise("Bench Press (Barbell)", MuscleGroup.CHEST, Equipment.BARBELL, BodyPart.CHEST, "", true, null),
-        Exercise("Dumbbell Curl", MuscleGroup.ARMS, Equipment.DUMBBELL, BodyPart.ARMS, "", true, null),
-        Exercise("Leg Press", MuscleGroup.LEGS, Equipment.MACHINE, BodyPart.LEGS, "", true, null),
-        Exercise("Plank", MuscleGroup.CORE, Equipment.NONE, BodyPart.CORE, "", true, null),
-        Exercise("Tricep Dips", MuscleGroup.ARMS, Equipment.NONE, BodyPart.ARMS, "", true, null),
-        Exercise("Lat Pulldown", MuscleGroup.BACK, Equipment.MACHINE, BodyPart.BACK, "", true, null),
-        Exercise("Cable Row", MuscleGroup.BACK, Equipment.MACHINE, BodyPart.BACK, "", true, null),
-        Exercise("Overhead Tricep Extension", MuscleGroup.ARMS, Equipment.DUMBBELL, BodyPart.ARMS, "", true, null),
-        Exercise("Deadlift", MuscleGroup.BACK, Equipment.BARBELL, BodyPart.BACK, "", true, null),
-        Exercise("Leg Curl", MuscleGroup.LEGS, Equipment.MACHINE, BodyPart.LEGS, "", true, null)
-    ).sortedBy { it.name }
+		LaunchedEffect(Unit) {
+				try {
+						val response = ApiClient.exerciseApiService.getGeneralExercises()
+						allExercises = response
+						isLoading = false
+				} catch (e: Exception) {
+						errorMessage = "Failed to load exercises"
+						isLoading = false
+				}
+		}
 
-    val myExercises = emptyList<Exercise>()
+
+    val mockExercises = allExercises.sortedBy { it.name }
+		val myExercises = emptyList<Exercise>()
 
     // Pick base list depending on selected tab
     val baseExercises = if (selectedTabIndex == 0) mockExercises else myExercises
