@@ -26,6 +26,14 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
+import com.example.cs446_fit4me.model.Exercise
+import com.example.cs446_fit4me.model.BodyPart
+import com.example.cs446_fit4me.model.Equipment
+import com.example.cs446_fit4me.model.ExerciseTemplate
+import com.example.cs446_fit4me.model.MuscleGroup
+import com.example.cs446_fit4me.model.toExercise
+import com.example.cs446_fit4me.network.ApiClient
+import com.example.cs446_fit4me.network.ExerciseApiService
 import com.example.cs446_fit4me.model.*
 import com.example.cs446_fit4me.ui.components.ExerciseListItem
 
@@ -41,28 +49,39 @@ fun ExercisesScreen(navController: NavController? = null) {
     var equipmentDropdownExpanded by remember { mutableStateOf(false) }
     var selectedEquipments by remember { mutableStateOf(setOf<Equipment>()) }
 
+
+		var allExercises by remember { mutableStateOf<List<Exercise>>(emptyList()) }
+		var isLoading by remember { mutableStateOf(true) }
+		var errorMessage by remember { mutableStateOf<String?>(null) }
+
     var filterButtonSize by remember { mutableStateOf(IntSize.Zero) }
 
+
+		LaunchedEffect(Unit) {
+				try {
+						val response = ApiClient.exerciseApiService.getGeneralExercises()
+                        println(response)
+                        allExercises = response.map { exerciseTemplate ->
+                            exerciseTemplate.toExercise()
+
+                        }
+                        println(allExercises)
+						isLoading = false
+				} catch (e: Exception) {
+						errorMessage = "Failed to load exercises"
+						isLoading = false
+				}
+		}
+
+
+    val mockExercises = allExercises.sortedBy { it.name }
+        println(mockExercises)
+		val myExercises = emptyList<Exercise>()
+
+    // Pick base list depending on selected tab
+    
     var showCreateModal by remember { mutableStateOf(false) }
     var myExercises by remember { mutableStateOf(listOf<Exercise>()) }
-
-    val mockExercises = listOf(
-        Exercise("Push Up", MuscleGroup.CHEST, Equipment.NONE, BodyPart.CHEST, "", true, "https://wger.de/media/exercise-images/91/Crunches-1.png"),
-        Exercise("Back Extension", MuscleGroup.BACK, Equipment.NONE, BodyPart.BACK, "", true, null),
-        Exercise("Battle Ropes", MuscleGroup.CORE, Equipment.NONE, BodyPart.CORE, "", true, null),
-        Exercise("Squat", MuscleGroup.LEGS, Equipment.NONE, BodyPart.LEGS, "", true, null),
-        Exercise("Arnold Press", MuscleGroup.SHOULDERS, Equipment.DUMBBELL, BodyPart.SHOULDERS, "", true, null),
-        Exercise("Bench Press (Barbell)", MuscleGroup.CHEST, Equipment.BARBELL, BodyPart.CHEST, "", true, null),
-        Exercise("Dumbbell Curl", MuscleGroup.ARMS, Equipment.DUMBBELL, BodyPart.ARMS, "", true, null),
-        Exercise("Leg Press", MuscleGroup.LEGS, Equipment.MACHINE, BodyPart.LEGS, "", true, null),
-        Exercise("Plank", MuscleGroup.CORE, Equipment.NONE, BodyPart.CORE, "", true, null),
-        Exercise("Tricep Dips", MuscleGroup.ARMS, Equipment.NONE, BodyPart.ARMS, "", true, null),
-        Exercise("Lat Pulldown", MuscleGroup.BACK, Equipment.MACHINE, BodyPart.BACK, "", true, null),
-        Exercise("Cable Row", MuscleGroup.BACK, Equipment.MACHINE, BodyPart.BACK, "", true, null),
-        Exercise("Overhead Tricep Extension", MuscleGroup.ARMS, Equipment.DUMBBELL, BodyPart.ARMS, "", true, null),
-        Exercise("Deadlift", MuscleGroup.BACK, Equipment.BARBELL, BodyPart.BACK, "", true, null),
-        Exercise("Leg Curl", MuscleGroup.LEGS, Equipment.MACHINE, BodyPart.LEGS, "", true, null)
-    ).sortedBy { it.name }
 
     val baseExercises = if (selectedTabIndex == 0) mockExercises else myExercises
 
