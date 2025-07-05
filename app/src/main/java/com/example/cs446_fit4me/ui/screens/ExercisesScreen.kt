@@ -1,5 +1,6 @@
 package com.example.cs446_fit4me.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,6 +15,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.navigation.NavController
@@ -28,6 +33,10 @@ import com.example.cs446_fit4me.ui.components.ExerciseListItem
 fun ExercisesScreen(navController: NavController? = null) {
     var searchText by remember { mutableStateOf("") }
     var selectedTabIndex by remember { mutableStateOf(0) }
+
+    var bodyPartDropdownExpanded by remember { mutableStateOf(false) }
+    var selectedBodyParts by remember { mutableStateOf(setOf<BodyPart>()) }
+    var filterButtonSize by remember { mutableStateOf(IntSize.Zero) }
 
     val mockExercises = listOf(
         Exercise("Push Up", MuscleGroup.CHEST, Equipment.NONE, BodyPart.CHEST, "", true, "https://wger.de/media/exercise-images/91/Crunches-1.png"),
@@ -52,11 +61,11 @@ fun ExercisesScreen(navController: NavController? = null) {
     // Pick base list depending on selected tab
     val baseExercises = if (selectedTabIndex == 0) mockExercises else myExercises
 
-    // Filter by search text (case-insensitive substring match)
+    // Filter by search text (case-insensitive substring match) and selected body parts
     val filteredExercises = baseExercises.filter { exercise ->
-        exercise.name.startsWith(searchText, ignoreCase = true)
+        exercise.name.startsWith(searchText, ignoreCase = true) &&
+                (selectedBodyParts.isEmpty() || exercise.bodyPart in selectedBodyParts)
     }
-
 
     Box(
         modifier = Modifier
@@ -98,11 +107,53 @@ fun ExercisesScreen(navController: NavController? = null) {
                     .padding(top = 16.dp, bottom = 24.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                FilterButton(
-                    text = "Any Body Part",
-                    modifier = Modifier.weight(1f),
-                    onClick = { /* TODO */ }
-                )
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .onGloballyPositioned { coordinates: LayoutCoordinates ->
+                            filterButtonSize = coordinates.size
+                        }
+                ) {
+                    FilterButton(
+                        text = if (selectedBodyParts.isEmpty()) "Filter Body Part" else "${selectedBodyParts.size} selected",
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = { bodyPartDropdownExpanded = true }
+                    )
+                    DropdownMenu(
+                        expanded = bodyPartDropdownExpanded,
+                        onDismissRequest = { bodyPartDropdownExpanded = false },
+                        modifier = Modifier
+                            .width(with(LocalDensity.current) { (filterButtonSize.width * 0.8f).toDp() })
+                            .heightIn(max = 300.dp)
+                            .background(
+                                color = MaterialTheme.colorScheme.surface,
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                    ) {
+                        BodyPart.values().forEach { bodyPart ->
+                            val isSelected = selectedBodyParts.contains(bodyPart)
+                            DropdownMenuItem(
+                                onClick = {
+                                    selectedBodyParts = if (isSelected) {
+                                        selectedBodyParts - bodyPart
+                                    } else {
+                                        selectedBodyParts + bodyPart
+                                    }
+                                },
+                                text = {
+                                    Text(
+                                        bodyPart.name.replaceFirstChar { it.uppercase() },
+                                        color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else LocalContentColor.current
+                                    )
+                                },
+                                modifier = Modifier.background(
+                                    if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
+                                )
+                            )
+                        }
+                    }
+                }
+
                 FilterButton(
                     text = "Any Category",
                     modifier = Modifier.weight(1f),
