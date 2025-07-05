@@ -15,7 +15,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -44,78 +43,159 @@ enum ExperienceLevel {
 enum GymFrequency {
   NEVER
   RARELY
-  OCCASIONALLY    // 1–2 times/week
-  REGULARLY       // 3–4 times/week
-  FREQUENTLY      // 5–6 times/week
-  DAILY           // 7 days/week
+  OCCASIONALLY // 1–2 times/week
+  REGULARLY // 3–4 times/week
+  FREQUENTLY // 5–6 times/week
+  DAILY // 7 days/week
+}
+
+enum MuscleGroup {
+  SHOULDERS
+  BICEPS
+  HAMSTRINGS
+  CALVES
+  GLUTES
+  LATS
+  CHEST
+  QUADS
+  ABS
+  TRICEPS
+  OTHER
+}
+
+enum Equipment {
+  BARBELLS
+  BENCH
+  DUMBBELL
+  GYM_MAT
+  INCLINE_BENCH
+  KETTLEBELL
+  PULL_UP_BAR
+  SZ_BAR
+  SWISS_BALL
+  NONE
+  OTHER
+}
+
+enum BodyPart {
+  ABS
+  ARMS
+  BACK
+  CALVES
+  CARDIO
+  CHEST
+  LEGS
+  SHOULDERS
+  OTHER
 }
 
 model User {
-  id             String         @id @default(uuid())
-  email          String         @unique
-  name           String
-  passwordHash   String
-  heightCm       Float // Body measurements
-  weightKg       Float
-  age            Int
-  location       String // e.g., city name
-  timePreference TimePreference @default(NONE)
-  createdAt      DateTime       @default(now())
-	experienceLevel ExperienceLevel @default(BEGINNER)
+  id              String          @id @default(uuid())
+  email           String          @unique
+  name            String
+  passwordHash    String
+  heightCm        Float // Body measurements
+  weightKg        Float
+  age             Int
+  location        String // e.g., city name
+  timePreference  TimePreference  @default(NONE)
+  createdAt       DateTime        @default(now())
+  experienceLevel ExperienceLevel @default(BEGINNER)
   gymFrequency    GymFrequency    @default(NEVER)
 
-  exercises Exercise[] // Relationship: user has many exercises
-  workouts  Workout[] // ?? user has many workouts ??
-  prs       PR[] // ?? user has many PRs ?? 
+  customWorkoutTemplates  WorkoutTemplate[]
+  customExerciseTemplates ExerciseTemplate[]
+  workoutSessions         WorkoutSession[]
+  exerciseSessions        ExerciseSession[]
+  PR                      PR[]
 }
 
-model Workout {
-  id        String   @id @default(uuid())
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String
-	workoutDate DateTime       @default(now())
-  notes       String?        // Optional: "Felt good", etc.
-  entries     WorkoutEntry[]
-	
-  createdAt DateTime @default(now())
-}
-
-model WorkoutEntry {
-  id         String    @id @default(uuid())
-  workout    Workout   @relation(fields: [workoutId], references: [id])
-  workoutId  String
-  exercise   Exercise  @relation(fields: [exerciseId], references: [id])
-  exerciseId String
-  reps       Int
-  sets       Int?
-  weight     Float?    // Optional: weight lifted
-  duration   Int?      // Optional: in seconds
-  notes      String?
-
-  createdAt  DateTime  @default(now())
-}
-
-
-model PR {
-  id         String   @id @default(uuid())
-  user       User     @relation(fields: [userId], references: [id])
-  userId     String
-  exercise   Exercise @relation(fields: [exerciseId], references: [id])
-  exerciseId String
-  value      Int
-  createdAt  DateTime @default(now())
-}
-
-model Exercise {
+model WorkoutTemplate {
   id        String   @id @default(uuid())
   name      String
-	gifUrl    String
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String
+  isGeneral Boolean  @default(false) // true = general, false = custom
   createdAt DateTime @default(now())
 
-  prs PR[]
-	entries   WorkoutEntry[]
+  exercises      ExerciseTemplate[] @relation("WorkoutTemplateExercises")
+  User           User?              @relation(fields: [userId], references: [id])
+  userId         String?
+  WorkoutSession WorkoutSession[]
+}
 
-	// We have to store those APIs yet in DB to render.
+model WorkoutSession {
+  id String @id @default(uuid())
+
+  User   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  Workout           WorkoutTemplate @relation(fields: [workoutTemplateId], references: [id])
+  workoutTemplateId String
+
+  workoutDate DateTime @default(now())
+  notes       String?
+
+  exerciseSessions ExerciseSession[]
+
+  createdAt DateTime @default(now())
+}
+
+model PR {
+  id String @id @default(uuid())
+
+  template   ExerciseTemplate @relation(fields: [templateId], references: [id])
+  templateId String
+  User       User             @relation(fields: [userId], references: [id])
+  userId     String
+
+  weight    Float? // Optional: for weight-based PRs
+  duration  Int? // Optional: for time-based PRs (in seconds)
+  date      DateTime // When the PR was set
+  createdAt DateTime @default(now())
+}
+
+model ExerciseTemplate {
+  id          String      @id @default(uuid())
+  name        String
+  muscleGroup MuscleGroup
+  bodyPart    BodyPart
+  equipment   Equipment
+  isGeneral   Boolean     @default(false)
+  imageURL      String?
+
+  createdAt        DateTime          @default(now())
+  User             User?             @relation(fields: [userId], references: [id])
+  userId           String?
+  WorkoutTemplates WorkoutTemplate[] @relation("WorkoutTemplateExercises")
+  PR               PR[]
+  ExerciseSession  ExerciseSession[]
+}
+
+model ExerciseSession {
+  id                 String           @id @default(uuid())
+  exerciseTemplate   ExerciseTemplate @relation(fields: [exerciseTemplateID], references: [id])
+  exerciseTemplateID String
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  date  DateTime
+  notes String?
+
+  sets ExerciseSet[]
+
+  createdAt        DateTime        @default(now())
+  WorkoutSession   WorkoutSession? @relation(fields: [workoutSessionId], references: [id])
+  workoutSessionId String?
+}
+
+model ExerciseSet {
+  id String @id @default(uuid())
+
+  reps     Int
+  weight   Float?
+  duration Int? // In seconds, optional
+
+  createdAt         DateTime        @default(now())
+  ExerciseSession   ExerciseSession @relation(fields: [exerciseSessionId], references: [id])
+  exerciseSessionId String
 }
