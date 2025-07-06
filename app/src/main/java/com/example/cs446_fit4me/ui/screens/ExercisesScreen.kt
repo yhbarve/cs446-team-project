@@ -103,8 +103,21 @@ fun ExercisesScreen(navController: NavController? = null) {
                     }
                 },
                 actions = {
-                    TextButton(onClick = { showCreateModal = true }) {
-                        Text("New", color = MaterialTheme.colorScheme.primary)
+                    Surface(
+                        modifier = Modifier
+                            .padding(end = 16.dp)
+                            .clickable { showCreateModal = true },
+                        shape = RoundedCornerShape(50), // big rounding for pill shape
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        shadowElevation = 4.dp,
+                        tonalElevation = 4.dp
+                    ) {
+                        Text(
+                            text = "New",
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                            style = MaterialTheme.typography.labelLarge
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(),
