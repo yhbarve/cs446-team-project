@@ -414,6 +414,7 @@ fun CreateExerciseModal(
                                     bodyPart = selectedBodyPart!!,
                                     equipment = Equipment.DUMBBELL,
                                     isGeneral = false,
+                                    userId =  "621b6f5d-aa5d-422b-bd15-87f23724396c"
                                 )
                                 val created = ApiClient.exerciseApiService.createExercise(req)
                                 println(created)
