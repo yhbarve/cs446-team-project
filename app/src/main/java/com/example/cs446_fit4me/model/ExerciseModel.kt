@@ -45,3 +45,14 @@ fun ExerciseTemplate.toExercise(): Exercise {
         imageUrl = imageURL
     )
 }
+
+
+data class CreateExerciseRequest(
+    val name: String,
+    val muscleGroup: MuscleGroup,
+    val bodyPart: BodyPart,
+    val isGeneral: Boolean = false,
+    val imageURL: String? = null,
+    val userId: String,
+    val equipment: Equipment
+)

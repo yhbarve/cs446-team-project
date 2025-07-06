@@ -36,6 +36,8 @@ import com.example.cs446_fit4me.network.ApiClient
 import com.example.cs446_fit4me.network.ExerciseApiService
 import com.example.cs446_fit4me.model.*
 import com.example.cs446_fit4me.ui.components.ExerciseListItem
+import kotlinx.coroutines.launch
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,34 +52,34 @@ fun ExercisesScreen(navController: NavController? = null) {
     var selectedEquipments by remember { mutableStateOf(setOf<Equipment>()) }
 
 
-		var allExercises by remember { mutableStateOf<List<Exercise>>(emptyList()) }
-		var isLoading by remember { mutableStateOf(true) }
-		var errorMessage by remember { mutableStateOf<String?>(null) }
+    var allExercises by remember { mutableStateOf<List<Exercise>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
     var filterButtonSize by remember { mutableStateOf(IntSize.Zero) }
 
 
-		LaunchedEffect(Unit) {
-				try {
-						val response = ApiClient.exerciseApiService.getGeneralExercises()
-                        println(response)
-                        allExercises = response.map { exerciseTemplate ->
-                            exerciseTemplate.toExercise()
+    LaunchedEffect(Unit) {
+        try {
+            val response = ApiClient.exerciseApiService.getGeneralExercises()
+            println(response)
+            allExercises = response.map { exerciseTemplate ->
+                exerciseTemplate.toExercise()
 
-                        }
-                        println(allExercises)
-						isLoading = false
-				} catch (e: Exception) {
-						errorMessage = "Failed to load exercises"
-						isLoading = false
-				}
-		}
+            }
+            println(allExercises)
+            isLoading = false
+        } catch (e: Exception) {
+            errorMessage = "Failed to load exercises"
+            isLoading = false
+        }
+    }
 
 
     val mockExercises = allExercises.sortedBy { it.name }
 
     // Pick base list depending on selected tab
-    
+
     var showCreateModal by remember { mutableStateOf(false) }
     var myExercises by remember { mutableStateOf(listOf<Exercise>()) }
 
@@ -269,32 +271,34 @@ fun ExercisesScreen(navController: NavController? = null) {
                 bodyParts = BodyPart.values().toList(),
                 equipmentList = Equipment.values().toList(),
                 onDismiss = { showCreateModal = false },
-                onSave = { newExercise ->
-                    myExercises = myExercises + newExercise
+                onExerciseCreated = { created ->
+                    myExercises = myExercises + created
                     selectedTabIndex = 1
-                    showCreateModal = false
                 }
             )
         }
     }
 }
 
+
 @Composable
 fun CreateExerciseModal(
     bodyParts: List<BodyPart>,
     equipmentList: List<Equipment>,
     onDismiss: () -> Unit,
-    onSave: (Exercise) -> Unit
+    onExerciseCreated: (Exercise) -> Unit
 ) {
     var name by remember { mutableStateOf("") }
     var selectedBodyPart by remember { mutableStateOf<BodyPart?>(null) }
     var equipmentDropdownExpanded by remember { mutableStateOf(false) }
     var selectedEquipment by remember { mutableStateOf<Equipment?>(null) }
+    var isSaving by remember { mutableStateOf(false) }
+
+    val scope = rememberCoroutineScope()
 
     Dialog(onDismissRequest = onDismiss) {
         Card(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
@@ -303,7 +307,8 @@ fun CreateExerciseModal(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Create Custom Exercise",
+                    Text(
+                        "Create Custom Exercise",
                         style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -339,8 +344,7 @@ fun CreateExerciseModal(
                         Surface(
                             color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
                             shape = RoundedCornerShape(12.dp),
-                            modifier = Modifier
-                                .clickable { selectedBodyPart = bp }
+                            modifier = Modifier.clickable { selectedBodyPart = bp }
                         ) {
                             Text(
                                 bp.name.replaceFirstChar { it.uppercase() },
@@ -352,7 +356,6 @@ fun CreateExerciseModal(
                     }
                 }
 
-
                 Spacer(Modifier.height(16.dp))
 
                 Text("Equipment", style = MaterialTheme.typography.titleMedium)
@@ -361,14 +364,16 @@ fun CreateExerciseModal(
                 Box {
                     OutlinedTextField(
                         value = selectedEquipment?.name?.replaceFirstChar { it.uppercase() } ?: "",
-                        onValueChange = { },
+                        onValueChange = {},
                         label = { Text("Equipment") },
                         readOnly = true,
                         trailingIcon = {
                             Icon(
                                 imageVector = if (equipmentDropdownExpanded) Icons.Filled.ArrowDropUp else Icons.Filled.ArrowDropDown,
                                 contentDescription = "Toggle Dropdown",
-                                Modifier.clickable { equipmentDropdownExpanded = !equipmentDropdownExpanded }
+                                Modifier.clickable {
+                                    equipmentDropdownExpanded = !equipmentDropdownExpanded
+                                }
                             )
                         },
                         modifier = Modifier.fillMaxWidth()
@@ -396,29 +401,37 @@ fun CreateExerciseModal(
 
                 Button(
                     onClick = {
-                        if (selectedBodyPart != null && selectedEquipment != null && name.isNotBlank()) {
-                            onSave(
-                                Exercise(
+                        scope.launch {
+                            isSaving = true
+                            try {
+                                val req = CreateExerciseRequest(
                                     name = name,
                                     muscleGroup = MuscleGroup.CHEST,
-                                    equipment = selectedEquipment!!,
                                     bodyPart = selectedBodyPart!!,
-                                    description = "",
-                                    isGeneric = false,
-                                    imageUrl = null
+                                    equipment = selectedEquipment!!,
+                                    isGeneral = false,
+                                    userId = "621b6f5d-aa5d-422b-bd15-87f23724396c"
                                 )
-                            )
+                                val created = ApiClient.exerciseApiService.createExercise(req)
+                                onExerciseCreated(created.toExercise())
+                            } catch (e: Exception) {
+                                println("Error creating exercise: ${e.message}")
+                            } finally {
+                                isSaving = false
+                                onDismiss()
+                            }
                         }
                     },
-                    enabled = selectedBodyPart != null && selectedEquipment != null && name.isNotBlank(),
+                    enabled = !isSaving && selectedBodyPart != null && selectedEquipment != null && name.isNotBlank(),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Save")
+                    Text(if (isSaving) "Saving..." else "Save")
                 }
             }
         }
     }
 }
+
 
 @Composable
 fun ExercisesList(exercises: List<Exercise>, modifier: Modifier = Modifier) {
