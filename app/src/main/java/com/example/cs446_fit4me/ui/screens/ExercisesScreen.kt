@@ -410,9 +410,9 @@ fun CreateExerciseModal(
                                 println(selectedEquipment)
                                 val req = CreateExerciseRequest(
                                     name = name,
-                                    muscleGroup = MuscleGroup.CHEST,
+                                    muscleGroup = MuscleGroup.OTHER,
                                     bodyPart = selectedBodyPart!!,
-                                    equipment = Equipment.DUMBBELL,
+                                    equipment = selectedEquipment!!,
                                     isGeneral = false,
                                     userId =  "621b6f5d-aa5d-422b-bd15-87f23724396c"
                                 )

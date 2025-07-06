@@ -11,9 +11,9 @@ data class Exercise(
     val imageUrl: String? = null
 )
 
-enum class MuscleGroup { CHEST, BACK, LEGS, ARMS, SHOULDERS, CORE }
-enum class Equipment { NONE, DUMBBELL, BARBELL, MACHINE, BAND }
-enum class BodyPart { CHEST, BACK, LEGS, ARMS, SHOULDERS, CORE }
+enum class MuscleGroup { SHOULDERS, BICEPS, HAMSTRINGS, CALVES, GLUTES, LATS, CHEST, QUADS, ABS, TRICEPS, OTHER }
+enum class Equipment { BARBELLS, BENCH, DUMBBELL, GYM_MAT, INCLINE_BENCH, KETTLEBELL, PULL_UP_BAR, SZ_BAR, SWISS_BALL, NONE, OTHER }
+enum class BodyPart { ABS, ARMS, BACK, CARDIO, CALVES, CHEST, LEGS, SHOULDERS, OTHER }
 
 
 data class ExerciseTemplate(
@@ -37,9 +37,9 @@ fun String.toBodyPartOrNull() = try { BodyPart.valueOf(this.uppercase()) } catch
 fun ExerciseTemplate.toExercise(): Exercise {
     return Exercise(
         name = name,
-        muscleGroup = muscleGroup.toMuscleGroupOrNull() ?: MuscleGroup.CHEST, // fallback
+        muscleGroup = muscleGroup.toMuscleGroupOrNull() ?: MuscleGroup.OTHER, // fallback
         equipment = equipment.toEquipmentOrNull() ?: Equipment.NONE,
-        bodyPart = bodyPart.toBodyPartOrNull() ?: BodyPart.CORE,
+        bodyPart = bodyPart.toBodyPartOrNull() ?: BodyPart.OTHER,
         description = "",
         isGeneric = isGeneral,
         imageUrl = imageURL
