@@ -53,6 +53,6 @@ data class CreateExerciseRequest(
     val bodyPart: BodyPart,
     val isGeneral: Boolean = false,
     val imageURL: String? = null,
-    val userId: String,
+    val userId: String? = null,
     val equipment: Equipment
 )

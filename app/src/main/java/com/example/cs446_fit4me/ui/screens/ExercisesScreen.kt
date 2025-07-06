@@ -404,15 +404,19 @@ fun CreateExerciseModal(
                         scope.launch {
                             isSaving = true
                             try {
+                                println(name)
+                                println(MuscleGroup.CHEST)
+                                println(selectedBodyPart)
+                                println(selectedEquipment)
                                 val req = CreateExerciseRequest(
                                     name = name,
                                     muscleGroup = MuscleGroup.CHEST,
                                     bodyPart = selectedBodyPart!!,
-                                    equipment = selectedEquipment!!,
+                                    equipment = Equipment.DUMBBELL,
                                     isGeneral = false,
-                                    userId = "621b6f5d-aa5d-422b-bd15-87f23724396c"
                                 )
                                 val created = ApiClient.exerciseApiService.createExercise(req)
+                                println(created)
                                 onExerciseCreated(created.toExercise())
                             } catch (e: Exception) {
                                 println("Error creating exercise: ${e.message}")
