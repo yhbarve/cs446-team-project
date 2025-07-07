@@ -11,6 +11,20 @@ workoutTemplateRouter.get('/', (req: Request, res: Response) => {
     });
 });
 
+workoutTemplateRouter.get('/general', async (req: Request, res: Response): Promise<any> => {
+  try {
+    const templates = await prisma.workoutTemplate.findMany({
+      where: { isGeneral: true },
+      include: {
+        exercises: true,
+      },
+    });
+    res.json(templates);
+  } catch (error){
+    res.status(500).json({ error: 'Failed to fetch general workout templates' });
+  }
+});
+
 workoutTemplateRouter.post('/add', async (req: Request, res: Response): Promise<any> => {
   try {
     const { name, isGeneral, userId, exerciseIds } = req.body;
