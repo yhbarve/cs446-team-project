@@ -7,12 +7,18 @@ const userRouter = Router();
 
 const SALT_ROUNDS = 10;
 
+userRouter.get('/', (req: Request, res: Response) => {
+	res.status(200).json({
+		msg: "Hi from user router"
+	});
+});
+
 // Create new user
-userRouter.post("/", async (req: Request, res: Response): Promise<any> => {
+userRouter.post("/signup", async (req: Request, res: Response): Promise<any> => {
 	const {
 		email,
 		name,
-		passwordHash,
+		password,
 		heightCm,
 		weightKg,
 		age,
@@ -21,8 +27,6 @@ userRouter.post("/", async (req: Request, res: Response): Promise<any> => {
 		experienceLevel,
 		gymFrequency,
 	} = req.body;
-
-	const password = passwordHash;
 
 	// Validate enums
 	if (!Object.values(TimePreference).includes(timePreference)) {
@@ -50,6 +54,14 @@ userRouter.post("/", async (req: Request, res: Response): Promise<any> => {
 	}
 
 	try {
+		const existingUser = await prisma.user.findUnique({
+			where: { email },
+		});
+
+		if (existingUser) {
+			return res.status(400).json({ error: "Email already in use." });
+		}
+
 		const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 		const newUser = await prisma.user.create({
 			data: {
@@ -73,7 +85,7 @@ userRouter.post("/", async (req: Request, res: Response): Promise<any> => {
 	}
 });
 
-userRouter.get("/", async (req: Request, res: Response) => {
+userRouter.get("/users", async (req: Request, res: Response) => {
 	try {
 		const users = await prisma.user.findMany();
 		res.status(200).json(users);
