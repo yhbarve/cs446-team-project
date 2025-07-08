@@ -1,8 +1,11 @@
 import { Router, Request, Response } from "express";
 import prisma from "../lib/prisma";
 import { TimePreference, ExperienceLevel, GymFrequency } from "../lib/types";
+import bcrypt from "bcrypt";
 
 const userRouter = Router();
+
+const SALT_ROUNDS = 10;
 
 // Create new user
 userRouter.post("/", async (req: Request, res: Response): Promise<any> => {
@@ -18,6 +21,8 @@ userRouter.post("/", async (req: Request, res: Response): Promise<any> => {
 		experienceLevel,
 		gymFrequency,
 	} = req.body;
+
+	const password = passwordHash;
 
 	// Validate enums
 	if (!Object.values(TimePreference).includes(timePreference)) {
@@ -45,11 +50,12 @@ userRouter.post("/", async (req: Request, res: Response): Promise<any> => {
 	}
 
 	try {
+		const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 		const newUser = await prisma.user.create({
 			data: {
 				email,
 				name,
-				passwordHash,
+				passwordHash: hashedPassword,
 				heightCm,
 				weightKg,
 				age,
@@ -60,7 +66,8 @@ userRouter.post("/", async (req: Request, res: Response): Promise<any> => {
 			},
 		});
 
-		res.status(201).json(newUser);
+		const { passwordHash: _, ...userWithoutPassword } = newUser;
+		res.status(201).json(userWithoutPassword);
 	} catch (err: any) {
 		res.status(400).json({ error: err.message });
 	}
@@ -123,6 +130,35 @@ userRouter.delete("/:id", async (req: Request, res: Response) => {
 		res.status(204).send(); // success with no content
 	} catch (err: any) {
 		res.status(400).json({ error: err.message });
+	}
+});
+
+userRouter.post("/login", async (req: Request, res: Response): Promise<any> => {
+	const { email, password } = req.body;
+
+	if (!email || !password) {
+		return res.status(400).json({ error: "Email and password are required." });
+	}
+
+	try {
+		const user = await prisma.user.findUnique({
+			where: { email },
+		});
+
+		if (!user) {
+			return res.status(401).json({ error: "Invalid credentials." });
+		}
+
+		const passwordMatch = await bcrypt.compare(password, user.passwordHash);
+
+		if (!passwordMatch){
+			return res.status(401).json({ error: "Invalid credentials." });
+		}
+
+		const { passwordHash, ...userWithoutPassword } = user;
+		res.status(200).json(userWithoutPassword);
+	} catch (err: any) {
+		res.status(500).json({ error: err.message });
 	}
 });
 
