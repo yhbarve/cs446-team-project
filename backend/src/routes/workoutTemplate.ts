@@ -11,6 +11,22 @@ workoutTemplateRouter.get('/', (req: Request, res: Response) => {
     });
 });
 
+workoutTemplateRouter.get('/by-user/:userId', async (req: Request, res: Response): Promise<any> => {
+    const { userId } = req.params;
+
+    try {
+      const templates = await prisma.workoutTemplate.findMany({
+        where: { userId },
+        include: {
+          exercises: true,
+        },
+      });
+      res.json(templates);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch user\'s workout templates' });
+    }
+});
+
 workoutTemplateRouter.get('/general', async (req: Request, res: Response): Promise<any> => {
   try {
     const templates = await prisma.workoutTemplate.findMany({
