@@ -7,9 +7,9 @@ const userRouter = Router();
 
 const SALT_ROUNDS = 10;
 
-userRouter.get('/', (req: Request, res: Response) => {
+userRouter.get("/", (req: Request, res: Response) => {
 	res.status(200).json({
-		msg: "Hi from user router"
+		msg: "Hi from user router",
 	});
 });
 
@@ -114,18 +114,62 @@ userRouter.get("/:id", async (req: Request, res: Response): Promise<any> => {
 });
 
 // Update user
-userRouter.put("/:id", async (req: Request, res: Response) => {
+userRouter.put("/:id", async (req: Request, res: Response): Promise<any> => {
 	const userId = req.params.id;
-	const updateData = req.body;
+	const {
+		name,
+		age,
+		heightCm,
+		weightKg,
+		location,
+		timePreference,
+		experienceLevel,
+		gymFrequency,
+		password,
+	} = req.body;
+
+	const updateData: any = {};
+
+	if (name != null) updateData.name = name;
+	if (age != null) updateData.age = age;
+	if (heightCm != null) updateData.heightCm = heightCm;
+	if (weightKg != null) updateData.weightKg = weightKg;
+	if (location != null) updateData.location = location;
+
+	if (timePreference != null) {
+		if (!Object.values(TimePreference).includes(timePreference)) {
+			return res.status(400).json({ error: "Invalid timePreference" });
+		}
+		updateData.timePreference = timePreference;
+	}
+
+	if (experienceLevel != null) {
+		if (!Object.values(ExperienceLevel).includes(experienceLevel)) {
+			return res.status(400).json({ error: "Invalid experienceLevel" });
+		}
+		updateData.experienceLevel = experienceLevel;
+	}
+
+	if (gymFrequency != null) {
+		if (!Object.values(GymFrequency).includes(gymFrequency)) {
+			return res.status(400).json({ error: "Invalid gymFrequency" });
+		}
+		updateData.gymFrequency = gymFrequency;
+	}
+
+	if (password != null) {
+		const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+		updateData.passwordHash = hashedPassword;
+	}
 
 	try {
 		const updatedUser = await prisma.user.update({
 			where: { id: userId },
 			data: updateData,
 		});
-
 		res.json(updatedUser);
 	} catch (err: any) {
+		console.error("❌ Update error:", err);
 		res.status(400).json({ error: err.message });
 	}
 });
@@ -163,7 +207,7 @@ userRouter.post("/login", async (req: Request, res: Response): Promise<any> => {
 
 		const passwordMatch = await bcrypt.compare(password, user.passwordHash);
 
-		if (!passwordMatch){
+		if (!passwordMatch) {
 			return res.status(401).json({ error: "Invalid credentials." });
 		}
 
