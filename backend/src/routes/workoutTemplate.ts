@@ -1,9 +1,12 @@
 import { Router, Request, Response } from "express";
 import prisma from "../lib/prisma"; // import prisma client to communicate with the db
+import authMiddleware from "../middleware/authMiddleware";
 
 const workoutTemplateRouter = Router();
 
-// add endpoints
+// #region PUBLIC ENDPOINTS
+
+// dummy endpoint
 workoutTemplateRouter.get('/', (req: Request, res: Response) => {
     // const workouts = await prisma.workout.findMany();
     res.status(200).json({
@@ -11,7 +14,26 @@ workoutTemplateRouter.get('/', (req: Request, res: Response) => {
     });
 });
 
-workoutTemplateRouter.get('/by-user/:userId', async (req: Request, res: Response): Promise<any> => {
+// get all generic workouts
+workoutTemplateRouter.get('/general', async (req: Request, res: Response): Promise<any> => {
+  try {
+    const templates = await prisma.workoutTemplate.findMany({
+      where: { isGeneral: true },
+      include: {
+        exercises: true,
+      },
+    });
+    res.json(templates);
+  } catch (error){
+    res.status(500).json({ error: 'Failed to fetch general workout templates' });
+  }
+});
+
+//#endregion
+
+//#region PROTECTED ENDPOINTS
+
+workoutTemplateRouter.get('/by-user/:userId', authMiddleware, async (req: Request, res: Response): Promise<any> => {
     const { userId } = req.params;
 
     try {
@@ -27,21 +49,7 @@ workoutTemplateRouter.get('/by-user/:userId', async (req: Request, res: Response
     }
 });
 
-workoutTemplateRouter.get('/general', async (req: Request, res: Response): Promise<any> => {
-  try {
-    const templates = await prisma.workoutTemplate.findMany({
-      where: { isGeneral: true },
-      include: {
-        exercises: true,
-      },
-    });
-    res.json(templates);
-  } catch (error){
-    res.status(500).json({ error: 'Failed to fetch general workout templates' });
-  }
-});
-
-workoutTemplateRouter.post('/add', async (req: Request, res: Response): Promise<any> => {
+workoutTemplateRouter.post('/add', authMiddleware, async (req: Request, res: Response): Promise<any> => {
   try {
     const { name, isGeneral, userId, exerciseIds } = req.body;
 
@@ -72,7 +80,7 @@ workoutTemplateRouter.post('/add', async (req: Request, res: Response): Promise<
   }
 });
 
-workoutTemplateRouter.put('/:id/add-exercises', async (req: Request, res: Response): Promise<any> => {
+workoutTemplateRouter.put('/:id/add-exercises', authMiddleware, async (req: Request, res: Response): Promise<any> => {
   const { id } = req.params;
   const { exerciseIds } = req.body;
 
@@ -101,7 +109,7 @@ workoutTemplateRouter.put('/:id/add-exercises', async (req: Request, res: Respon
   }
 });
 
-workoutTemplateRouter.put('/:id/remove-exercise', async (req: Request, res: Response): Promise<any> => {
+workoutTemplateRouter.delete('/:id/remove-exercise', authMiddleware, async (req: Request, res: Response): Promise<any> => {
   const { id } = req.params;
   const { exerciseId } = req.body;
 
@@ -130,6 +138,6 @@ workoutTemplateRouter.put('/:id/remove-exercise', async (req: Request, res: Resp
   }
 });
 
-
+//#endregion
 
 export default workoutTemplateRouter;
