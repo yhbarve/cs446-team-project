@@ -1,3 +1,5 @@
+import { Request } from "express";
+
 export enum TimePreference {
 	MORNING = "MORNING",
 	AFTERNOON = "AFTERNOON",

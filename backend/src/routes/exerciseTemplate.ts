@@ -47,8 +47,8 @@ exerciseTemplateRouter.get(
 exerciseTemplateRouter.get(
 	"/by-user/:userId",
 	authMiddleware,
-	async (req: Request, res: Response): Promise<any> => {
-		const userId = (req as unknown as AuthRequest).userId;
+	async (req: AuthRequest, res: Response): Promise<any> => {
+		const userId = req.userId;
 		console.log(userId);
 
 		try {
@@ -66,9 +66,10 @@ exerciseTemplateRouter.get(
 exerciseTemplateRouter.post(
 	"/",
 	authMiddleware,
-	async (req: Request, res: Response): Promise<any> => {
+	async (req: AuthRequest, res: Response): Promise<any> => {
 		console.log(req.body);
-		const { name, muscleGroup, bodyPart, isGeneral, imageURL, userId, equipment } = req.body;
+		const userId = req.userId;
+		const { name, muscleGroup, bodyPart, isGeneral, imageURL, equipment } = req.body;
 
 		if (!name || !muscleGroup || !bodyPart || isGeneral === undefined) {
 			return res.status(400).json({ error: "Missing required fields." });
