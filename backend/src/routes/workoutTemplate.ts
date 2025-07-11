@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import prisma from "../lib/prisma"; // import prisma client to communicate with the db
 import authMiddleware from "../middleware/authMiddleware";
+import { AuthRequest } from "src/lib/types";
 
 const workoutTemplateRouter = Router();
 
@@ -33,8 +34,8 @@ workoutTemplateRouter.get('/general', async (req: Request, res: Response): Promi
 
 //#region PROTECTED ENDPOINTS
 
-workoutTemplateRouter.get('/by-user/:userId', authMiddleware, async (req: Request, res: Response): Promise<any> => {
-    const { userId } = req.params;
+workoutTemplateRouter.get('/by-user/:userId', authMiddleware, async (req: AuthRequest, res: Response): Promise<any> => {
+    const userId = req.userId;
 
     try {
       const templates = await prisma.workoutTemplate.findMany({
@@ -49,9 +50,10 @@ workoutTemplateRouter.get('/by-user/:userId', authMiddleware, async (req: Reques
     }
 });
 
-workoutTemplateRouter.post('/add', authMiddleware, async (req: Request, res: Response): Promise<any> => {
+workoutTemplateRouter.post('/add', authMiddleware, async (req: AuthRequest, res: Response): Promise<any> => {
   try {
-    const { name, isGeneral, userId, exerciseIds } = req.body;
+    const { name, isGeneral, exerciseIds } = req.body;
+    const userId = req.userId;
 
     // Validate required fields
     if (!name || !Array.isArray(exerciseIds) || exerciseIds.length === 0) {
@@ -80,9 +82,10 @@ workoutTemplateRouter.post('/add', authMiddleware, async (req: Request, res: Res
   }
 });
 
-workoutTemplateRouter.put('/:id/add-exercises', authMiddleware, async (req: Request, res: Response): Promise<any> => {
+workoutTemplateRouter.put('/:id/add-exercises', authMiddleware, async (req: AuthRequest, res: Response): Promise<any> => {
   const { id } = req.params;
   const { exerciseIds } = req.body;
+  const userId = req.userId;
 
   // Validate input
   if (!Array.isArray(exerciseIds) || exerciseIds.length === 0) {
@@ -109,9 +112,10 @@ workoutTemplateRouter.put('/:id/add-exercises', authMiddleware, async (req: Requ
   }
 });
 
-workoutTemplateRouter.delete('/:id/remove-exercise', authMiddleware, async (req: Request, res: Response): Promise<any> => {
+workoutTemplateRouter.delete('/:id/remove-exercise', authMiddleware, async (req: AuthRequest, res: Response): Promise<any> => {
   const { id } = req.params;
   const { exerciseId } = req.body;
+  const userId = req.userId;
 
   // Validate input
   if (!exerciseId) {

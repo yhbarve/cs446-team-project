@@ -1,9 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken"
-
-interface AuthRequest extends Request {
-    userId?: any
-}
+import { AuthRequest } from "src/lib/types";
 
 export default function authMiddleware(req: AuthRequest, res: Response, next: NextFunction): void {
     const authHeader = req.headers.authorization;
@@ -19,6 +16,7 @@ export default function authMiddleware(req: AuthRequest, res: Response, next: Ne
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
         req.userId = decoded.userId;
+        console.log("Middleware ran successfully");
         next();
     } catch (err) {
         res.status(401).json({ message: "Unauthorized: Invalid token" });

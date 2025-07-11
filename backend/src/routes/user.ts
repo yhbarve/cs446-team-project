@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import prisma from "../lib/prisma";
-import { TimePreference, ExperienceLevel, GymFrequency } from "../lib/types";
+import { TimePreference, ExperienceLevel, GymFrequency, AuthRequest } from "../lib/types";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import authMiddleware from "../middleware/authMiddleware";
@@ -136,7 +136,8 @@ userRouter.post("/login", async (req: Request, res: Response): Promise<any> => {
 
 // #region PROTECTED ENDPOINTS
 
-userRouter.get("/users", authMiddleware, async (req: Request, res: Response) => {
+userRouter.get("/users", authMiddleware, async (req: AuthRequest, res: Response) => {
+	const userId = req.userId;
 	try {
 		const users = await prisma.user.findMany();
 		res.status(200).json(users);
@@ -146,8 +147,8 @@ userRouter.get("/users", authMiddleware, async (req: Request, res: Response) => 
 });
 
 // Get user by ID
-userRouter.get("/:id", authMiddleware, async (req: Request, res: Response): Promise<any> => {
-	const userId = req.params.id;
+userRouter.get("/:id", authMiddleware, async (req: AuthRequest, res: Response): Promise<any> => {
+	const userId = req.userId;
 
 	try {
 		const user = await prisma.user.findUnique({
@@ -165,8 +166,8 @@ userRouter.get("/:id", authMiddleware, async (req: Request, res: Response): Prom
 });
 
 // Update user
-userRouter.put("/:id", authMiddleware, async (req: Request, res: Response): Promise<any> => {
-	const userId = req.params.id;
+userRouter.put("/:id", authMiddleware, async (req: AuthRequest, res: Response): Promise<any> => {
+	const userId = req.userId;
 	const {
 		name,
 		age,
@@ -226,8 +227,8 @@ userRouter.put("/:id", authMiddleware, async (req: Request, res: Response): Prom
 });
 
 // Delete user
-userRouter.delete("/:id", authMiddleware, async (req: Request, res: Response) => {
-	const userId = req.params.id;
+userRouter.delete("/:id", authMiddleware, async (req: AuthRequest, res: Response) => {
+	const userId = req.userId;
 
 	try {
 		await prisma.user.delete({

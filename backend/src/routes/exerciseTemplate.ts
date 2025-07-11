@@ -49,7 +49,8 @@ exerciseTemplateRouter.get(
 	authMiddleware,
 	async (req: AuthRequest, res: Response): Promise<any> => {
 		const userId = req.userId;
-		console.log(userId);
+		console.log(req.body);
+		console.log(`userId = ${userId}`);
 
 		try {
 			const templates = await prisma.exerciseTemplate.findMany({
@@ -70,6 +71,7 @@ exerciseTemplateRouter.post(
 		console.log(req.body);
 		const userId = req.userId;
 		const { name, muscleGroup, bodyPart, isGeneral, imageURL, equipment } = req.body;
+		console.log(`userId = ${userId}`);
 
 		if (!name || !muscleGroup || !bodyPart || isGeneral === undefined) {
 			return res.status(400).json({ error: "Missing required fields." });
@@ -105,8 +107,10 @@ exerciseTemplateRouter.post(
 );
 
 // UPDATE a template
-exerciseTemplateRouter.put("/:id", authMiddleware, async (req: Request, res: Response) => {
+exerciseTemplateRouter.put("/:id", authMiddleware, async (req: AuthRequest, res: Response) => {
 	const { name, muscleGroup, bodyPart, imageURL, isGeneral, equipment } = req.body;
+
+	const userId = req.userId;
 
 	try {
 		const updated = await prisma.exerciseTemplate.update({
@@ -128,7 +132,8 @@ exerciseTemplateRouter.put("/:id", authMiddleware, async (req: Request, res: Res
 });
 
 // DELETE a template
-exerciseTemplateRouter.delete("/:id", authMiddleware, async (req: Request, res: Response) => {
+exerciseTemplateRouter.delete("/:id", authMiddleware, async (req: AuthRequest, res: Response) => {
+	const userId = req.userId;
 	try {
 		await prisma.exerciseTemplate.delete({
 			where: { id: req.params.id },
