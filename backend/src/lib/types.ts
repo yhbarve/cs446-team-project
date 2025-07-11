@@ -1,3 +1,5 @@
+import { Request } from "express";
+
 export enum TimePreference {
 	MORNING = "MORNING",
 	AFTERNOON = "AFTERNOON",
@@ -50,4 +52,8 @@ export enum BodyPart {
 	SHOULDERS = "SHOULDERS",
 	BACK = "BACK",
 	OTHER = "OTHER",
+}
+
+export interface AuthRequest extends Request {
+	userId?: string
 }

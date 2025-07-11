@@ -19,6 +19,7 @@
 	"description": "",
 	"dependencies": {
 		"@prisma/client": "^6.10.1",
+		"@types/jsonwebtoken": "^9.0.10",
 		"axios": "^1.10.0",
 		"bcrypt": "^6.0.0",
 		"cors": "^2.8.5",
@@ -26,6 +27,7 @@
 		"express": "^5.1.0",
 		"franc": "^6.2.0",
 		"fs": "^0.0.1-security",
+		"jsonwebtoken": "^9.0.2",
 		"langdetect": "^0.2.1",
 		"langs": "^2.0.0",
 		"path": "^0.12.7",

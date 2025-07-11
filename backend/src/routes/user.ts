@@ -1,11 +1,19 @@
 import { Router, Request, Response } from "express";
 import prisma from "../lib/prisma";
-import { TimePreference, ExperienceLevel, GymFrequency } from "../lib/types";
+import { TimePreference, ExperienceLevel, GymFrequency, AuthRequest } from "../lib/types";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import authMiddleware from "../middleware/authMiddleware";
 
 const userRouter = Router();
 
 const SALT_ROUNDS = 10;
+
+function generateToken(userId: string){
+	return jwt.sign({ userId }, process.env.JWT_SECRET!, { expiresIn: '7d' });
+}
+
+// #region PUBLIC ENDPOINTS
 
 userRouter.get("/", (req: Request, res: Response) => {
 	res.status(200).json({
@@ -78,14 +86,58 @@ userRouter.post("/signup", async (req: Request, res: Response): Promise<any> => 
 			},
 		});
 
+		const token = generateToken(newUser.id);
+
 		const { passwordHash: _, ...userWithoutPassword } = newUser;
-		res.status(201).json(userWithoutPassword);
+		res.status(201).json({
+			user: userWithoutPassword,
+			token: `Bearer ${token}`,
+		});
 	} catch (err: any) {
 		res.status(400).json({ error: err.message });
 	}
 });
 
-userRouter.get("/users", async (req: Request, res: Response) => {
+userRouter.post("/login", async (req: Request, res: Response): Promise<any> => {
+	const { email, password } = req.body;
+
+	if (!email || !password) {
+		return res.status(400).json({ error: "Email and password are required." });
+	}
+
+	try {
+		const user = await prisma.user.findUnique({
+			where: { email },
+		});
+
+		if (!user) {
+			return res.status(401).json({ error: "Invalid credentials." });
+		}
+
+		const passwordMatch = await bcrypt.compare(password, user.passwordHash);
+
+		if (!passwordMatch) {
+			return res.status(401).json({ error: "Invalid credentials." });
+		}
+
+		const token = generateToken(user.id);
+
+		const { passwordHash, ...userWithoutPassword } = user;
+		res.status(200).json({
+			user: userWithoutPassword,
+			token: `Bearer ${token}`,
+		});
+	} catch (err: any) {
+		res.status(500).json({ error: err.message });
+	}
+});
+
+// #endregion
+
+// #region PROTECTED ENDPOINTS
+
+userRouter.get("/users", authMiddleware, async (req: AuthRequest, res: Response) => {
+	const userId = req.userId;
 	try {
 		const users = await prisma.user.findMany();
 		res.status(200).json(users);
@@ -95,8 +147,8 @@ userRouter.get("/users", async (req: Request, res: Response) => {
 });
 
 // Get user by ID
-userRouter.get("/:id", async (req: Request, res: Response): Promise<any> => {
-	const userId = req.params.id;
+userRouter.get("/:id", authMiddleware, async (req: AuthRequest, res: Response): Promise<any> => {
+	const userId = req.userId;
 
 	try {
 		const user = await prisma.user.findUnique({
@@ -114,8 +166,8 @@ userRouter.get("/:id", async (req: Request, res: Response): Promise<any> => {
 });
 
 // Update user
-userRouter.put("/:id", async (req: Request, res: Response): Promise<any> => {
-	const userId = req.params.id;
+userRouter.put("/:id", authMiddleware, async (req: AuthRequest, res: Response): Promise<any> => {
+	const userId = req.userId;
 	const {
 		name,
 		age,
@@ -175,8 +227,8 @@ userRouter.put("/:id", async (req: Request, res: Response): Promise<any> => {
 });
 
 // Delete user
-userRouter.delete("/:id", async (req: Request, res: Response) => {
-	const userId = req.params.id;
+userRouter.delete("/:id", authMiddleware, async (req: AuthRequest, res: Response) => {
+	const userId = req.userId;
 
 	try {
 		await prisma.user.delete({
@@ -189,33 +241,6 @@ userRouter.delete("/:id", async (req: Request, res: Response) => {
 	}
 });
 
-userRouter.post("/login", async (req: Request, res: Response): Promise<any> => {
-	const { email, password } = req.body;
-
-	if (!email || !password) {
-		return res.status(400).json({ error: "Email and password are required." });
-	}
-
-	try {
-		const user = await prisma.user.findUnique({
-			where: { email },
-		});
-
-		if (!user) {
-			return res.status(401).json({ error: "Invalid credentials." });
-		}
-
-		const passwordMatch = await bcrypt.compare(password, user.passwordHash);
-
-		if (!passwordMatch) {
-			return res.status(401).json({ error: "Invalid credentials." });
-		}
-
-		const { passwordHash, ...userWithoutPassword } = user;
-		res.status(200).json(userWithoutPassword);
-	} catch (err: any) {
-		res.status(500).json({ error: err.message });
-	}
-});
+// #endregion
 
 export default userRouter;

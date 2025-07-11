@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Request, Response, Router } from "express";
 import userRouter from "./user";
 import workoutTemplateRouter from "./workoutTemplate";
 import exerciseTemplateRouter from "./exerciseTemplate";
@@ -8,6 +8,12 @@ import workoutSessionRouter from "./workoutSession";
 import prRouter from "./pr";
 
 const router = Router();
+
+router.get("/", (req: Request, res: Response) => {
+    res.status(200).json({
+        msg: "Welcome to the CS446 Fit4Me Backend Server",
+    });
+});
 
 router.use("/user", userRouter);
 router.use("/workout-template", workoutTemplateRouter);
