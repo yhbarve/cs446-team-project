@@ -51,3 +51,7 @@ export enum BodyPart {
 	BACK = "BACK",
 	OTHER = "OTHER",
 }
+
+export interface AuthRequest extends Request {
+	userId?: string
+}

@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import prisma from "../lib/prisma";
-import { MuscleGroup, BodyPart } from "../lib/types";
+import { MuscleGroup, BodyPart, AuthRequest } from "../lib/types";
 import authMiddleware from "../middleware/authMiddleware";
 
 const exerciseTemplateRouter = Router();
@@ -47,8 +47,9 @@ exerciseTemplateRouter.get(
 exerciseTemplateRouter.get(
 	"/by-user/:userId",
 	authMiddleware,
-	async (req: Request, res: Response) => {
-		const { userId } = req.params;
+	async (req: Request, res: Response): Promise<any> => {
+		const userId = (req as unknown as AuthRequest).userId;
+		console.log(userId);
 
 		try {
 			const templates = await prisma.exerciseTemplate.findMany({
@@ -66,6 +67,7 @@ exerciseTemplateRouter.post(
 	"/",
 	authMiddleware,
 	async (req: Request, res: Response): Promise<any> => {
+		console.log(req.body);
 		const { name, muscleGroup, bodyPart, isGeneral, imageURL, userId, equipment } = req.body;
 
 		if (!name || !muscleGroup || !bodyPart || isGeneral === undefined) {

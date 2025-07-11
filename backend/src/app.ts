@@ -7,7 +7,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT;
+const PORT = parseInt(process.env.PORT || "8080", 10);
 
 app.use(cors());
 app.use(express.json());
@@ -21,6 +21,10 @@ app.get("/", (req: Request, res: Response) => {
 	});
 });
 
-app.listen(PORT, () => {
+app.get('/api/test', (req, res) => {
+  res.json({ status: 'ok' });
+});
+
+app.listen(PORT, '0.0.0.0', () => {
 	console.log(`Listening on port ${PORT}`);
 });
